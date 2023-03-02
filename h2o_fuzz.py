@@ -1,8 +1,19 @@
 import requests
 import random
 import string
+import sys
 
-def mutate_url(url: str, diff: int) -> str:
+from collections import defaultdict
+
+
+PORT = 5000
+headers = {}
+dir_list = ["index.html", "install.html", "configure.html", "faq.html", "random.html"]
+h_header = ["accept", "accept-charset", "accept-encoding", "accept-language", "connection", "content-type"]
+v_header = ["application/json", "utf-8", "gzip", "deflate", "en-us", "keep-alive", "text/html"]
+
+
+def mutate_str(url: str, diff: int) -> str:
     diff = min(diff, len(url))
     random_char = [""] * diff
     idx = [int(i) for i in range(len(url))]
@@ -15,45 +26,46 @@ def mutate_url(url: str, diff: int) -> str:
 
     for i in range(diff):
         l_url[sample[i]] = random_char[i]
-
     return "".join(l_url)
 
-dir_list = ["index.html", "install.html", "configure.html", "faq.html", "random.html"]
 
-PORT = 5000
-
-headers = {}
-h_header = ["accept", "accept-charset", "accept-encoding", "accept-language", "connection", "content-type"]
-v_header = ["application/json", "utf-8", "gzip", "deflate", "en-us", "keep-alive", "text/html"]
-
-
-# Without mutation on url
+# Without mutation on dir
 def fuzz() -> 'None':
+    data = defaultdict(int)
     for _ in range(1000):
         for i in h_header:
             headers[i] = random.choice(v_header)
         url = f"http://localhost:{PORT}/{random.choice(dir_list)}"
         res = requests.get(url, headers=headers)
+        data[res.status_code] += 1
         print(res.status_code)
+    print("Summary of fuzz:")
+    print(data)
 
 
-# With mutation on url
-def mutated_fuzz():
+# With mutation on dir
+def mutated_fuzz() -> 'None':
+    data = defaultdict(int)
     mutated_num = [int(i) for i in range(10)]
     for _ in range(1000):
         for i in h_header:
             headers[i] = random.choice(v_header)
-        url = f"http://localhost:{PORT}/{random.choice(dir_list)}"
-        url = mutate_url(url, mutated_num)
-        res = requests.get(url, headers=headers)
-        print(res.status_code)
-    pass
+        dir = random.choice(dir_list)
+        m_dir = mutate_str(dir, random.choice(mutated_num))
+        url = f"http://localhost:{PORT}/{m_dir}"
+        try:
+            res = requests.get(url, headers=headers)
+            data[res.status_code] += 1
+            print(res.status_code)
+        except Exception:
+            pass
+    print("Summary of mutated fuzz:")
+    print(data)
 
 
-
-# A GET request to the API
-# response = requests.get(url, headers=headers)
-# print(response.headers)
-# fuzz()
-url = f"http://localhost:{PORT}/"
-print(mutate_url(url, 3))
+arg_list = list(sys.argv)
+for i in arg_list[1:]:
+    if i == "1":
+        fuzz()
+    elif i == "2":
+        mutated_fuzz()
