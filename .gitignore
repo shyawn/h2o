@@ -17,3 +17,7 @@ tmp/
 /doc/workdir/
 include/h2o/gitrev.h
 /misc/mruby_config.rb.lock
+testing.c.gcov
+testing.gcda
+testing.gcno
+testing
