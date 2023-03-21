@@ -16,29 +16,29 @@ if not str(sys.argv[1]).isnumeric():
     print("Argument must be an integer")
     sys.exit()
 
-
-number_of_fuzz = int(sys.argv[1])
-
+# Initialization of global variables
 coverage_dict = {}
 overall_coverage_dict = {}
 inputs = []
-duration = []
+plot_duration = []
 plot_coverage = []
 number_of_interesting_input = []
 total_number_of_input = []
-
 number_of_input_generated = 0
+
+# Set number of iterations from cmd line
+number_of_fuzz = int(sys.argv[1])
 
 start_time = time.time()
 for _ in range(number_of_fuzz):
-    print("Iteration: ", _)
+    print("\nIteration: ", _)
     subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
     subprocess.run(["./testing"])
     subprocess.run(["gcov", "testing.c", "-m"])
 
     # subprocess.run(["cat", "testing.c.gcov"])
 
-    ### using lcov to generate html report
+    ### IGNORE!!! Using lcov to generate html report
     # subprocess.run(["lcov", "--capture", "--directory", ".", "--output-file", "testing.info"])
     # # subprocess.run(["geninfo", ".", "-o", "./testing.info"])
     # subprocess.run(["genhtml", "testing.info", "--output-directory", "out"])
@@ -58,47 +58,67 @@ for _ in range(number_of_fuzz):
         coverage_cnt = 0
         for line in file.readlines():
             coverage_list = line.split(':')
+            # Get number of times line is run
             coverage = coverage_list[0].strip()
+            # Get line number
             line_number = coverage_list[1].strip()
+            # Ignore line 0s
             if int(line_number):
+                # Initialize line number & line coverage in overall_coverage_dict
                 if not (int(line_number) in overall_coverage_dict):
                     overall_coverage_dict[int(line_number)] = 0
+                # Check if coverage is not ##### or -
                 if coverage.isnumeric():
+                    # Calculate total line coverage in each iteration
                     coverage_cnt += int(coverage)
+                    # Generate key for each iteration
                     key += coverage + ","
+                    # Add coverage for each line from previous coverage
                     if (int(line_number) in overall_coverage_dict):
                         overall_coverage_dict[int(line_number)] += int(coverage)
                 else:
                     key += "#" + ","
-
+        # Add unique keys to coverage_dict
         if key not in coverage_dict:
             coverage_dict[key] = 0
-        number_of_interesting_input.append(len(coverage_dict))
-        number_of_input_generated += 1
-        total_number_of_input.append(number_of_input_generated)
-        print (number_of_input_generated)
 
-    file2.close()
+    file.close()
 
+    # Calculate time taken for each iteration
     point_duration = time.time() - start_time
-    duration.append(point_duration)
+    plot_duration.append(point_duration)
+
+    # Calculate total line coverage, adding from previous iteration
     if len(plot_coverage) != 0:
         plot_coverage.append(coverage_cnt + plot_coverage[-1])
     else:
         plot_coverage.append(coverage_cnt)
 
+    number_of_interesting_input.append(len(coverage_dict))
+    number_of_input_generated += 1
+    total_number_of_input.append(number_of_input_generated)
+
+    # Printing outputs
+    print("Number of inputs generated: ", number_of_input_generated)
     print("Coverage count: ", plot_coverage)
-    print("Duration: ", duration)
-    print("Key length", len(key))
+    print("Duration: ", plot_duration)
+    print("Key length: ", len(key))
     print("Coverage: ", coverage_dict)
     print("Number of interesting inputs: ", len(coverage_dict))
 
 end_time = time.time()
 total_duration = end_time - start_time
 print("Total time taken: ", total_duration)
-print("overall coverage : ", overall_coverage_dict)
+print("Overall coverage: ", overall_coverage_dict)
 
+# Plotting number of interesting input vs total number of input
 plt.plot(total_number_of_input , number_of_interesting_input )
 plt.xlabel('total number of inputs')
 plt.ylabel('interesting inputs')
+plt.show()
+
+# Plotting plot coverage vs duration
+plt.plot(plot_duration, plot_coverage)
+plt.xlabel('time')
+plt.ylabel('coverage')
 plt.show()
