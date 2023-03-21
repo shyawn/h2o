@@ -23,8 +23,8 @@ inputs = []
 plot_duration = []
 plot_coverage = []
 number_of_interesting_input = []
-total_number_of_input = []
-number_of_input_generated = 0
+# total_number_of_input = []
+# number_of_input_generated = 0
 
 # Set number of iterations from cmd line
 number_of_fuzz = int(sys.argv[1])
@@ -95,11 +95,11 @@ for _ in range(number_of_fuzz):
         plot_coverage.append(coverage_cnt)
 
     number_of_interesting_input.append(len(coverage_dict))
-    number_of_input_generated += 1
-    total_number_of_input.append(number_of_input_generated)
+    # number_of_input_generated += 1
+    # total_number_of_input.append(number_of_input_generated)
 
     # Printing outputs
-    print("Number of inputs generated: ", number_of_input_generated)
+    # print("Number of inputs generated: ", number_of_input_generated)
     print("Coverage count: ", plot_coverage)
     print("Duration: ", plot_duration)
     print("Key length: ", len(key))
@@ -112,7 +112,8 @@ print("Total time taken: ", total_duration)
 print("Overall coverage: ", overall_coverage_dict)
 
 # Plotting number of interesting input vs total number of input
-plt.plot(total_number_of_input , number_of_interesting_input )
+total_number_of_input = [i for i in range(1, number_of_fuzz+1)]
+plt.plot(total_number_of_input, number_of_interesting_input)
 plt.xlabel('total number of inputs')
 plt.ylabel('interesting inputs')
 plt.show()
