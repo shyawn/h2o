@@ -20,9 +20,14 @@ if not str(sys.argv[1]).isnumeric():
 number_of_fuzz = int(sys.argv[1])
 
 coverage_dict = {}
+overall_coverage_dict = {}
 inputs = []
 duration = []
 plot_coverage = []
+number_of_interesting_input = []
+total_number_of_input = []
+
+number_of_input_generated = 0
 
 start_time = time.time()
 for _ in range(number_of_fuzz):
@@ -52,18 +57,26 @@ for _ in range(number_of_fuzz):
         key = ""
         coverage_cnt = 0
         for line in file.readlines():
-                coverage_list = line.split(':')
-                coverage = coverage_list[0].strip()
-                line_number = coverage_list[1].strip()
-                if int(line_number):
-                    if coverage.isnumeric():
-                        coverage_cnt += int(coverage)
-                        key += coverage + ","
-                    else:
-                        key += "#" + ","
+            coverage_list = line.split(':')
+            coverage = coverage_list[0].strip()
+            line_number = coverage_list[1].strip()
+            if int(line_number):
+                if not (int(line_number) in overall_coverage_dict):
+                    overall_coverage_dict[int(line_number)] = 0
+                if coverage.isnumeric():
+                    coverage_cnt += int(coverage)
+                    key += coverage + ","
+                    if (int(line_number) in overall_coverage_dict):
+                        overall_coverage_dict[int(line_number)] += int(coverage)
+                else:
+                    key += "#" + ","
 
         if key not in coverage_dict:
             coverage_dict[key] = 0
+        number_of_interesting_input.append(len(coverage_dict))
+        number_of_input_generated += 1
+        total_number_of_input.append(number_of_input_generated)
+        print (number_of_input_generated)
 
     file2.close()
 
@@ -83,8 +96,9 @@ for _ in range(number_of_fuzz):
 end_time = time.time()
 total_duration = end_time - start_time
 print("Total time taken: ", total_duration)
+print("overall coverage : ", overall_coverage_dict)
 
-plt.plot(duration, plot_coverage)
-plt.xlabel('time')
-plt.ylabel('coverage')
+plt.plot(total_number_of_input , number_of_interesting_input )
+plt.xlabel('total number of inputs')
+plt.ylabel('interesting inputs')
 plt.show()
