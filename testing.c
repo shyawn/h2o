@@ -35,6 +35,15 @@ int main(){
 
     returned_value = h2o_url_parse(url, url_len, parsed);
     printf ("result: %d\n", returned_value);
+    free (url);
+    url = NULL;
+    free (parsed -> scheme -> name.base);
+    free (parsed -> authority.base);
+    parsed -> authority.base = NULL;
+    free (parsed -> host.base);
+    parsed -> host.base = NULL;
+    free (parsed -> path.base);
+    parsed -> path.base = NULL;
 
     return 0;
 }
