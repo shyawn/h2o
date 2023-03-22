@@ -126,3 +126,9 @@ plt.show()
 # plt.xlabel('time')
 # plt.ylabel('coverage')
 # plt.show()
+
+# Plotting total number of inputs vs time
+# plt.plot(plot_duration, total_number_of_input)
+# plt.xlabel('time')
+# plt.ylabel('total number of inputs')
+# plt.show()
