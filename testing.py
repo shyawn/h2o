@@ -62,6 +62,9 @@ for _ in range(number_of_fuzz):
             coverage = coverage_list[0].strip()
             # Get line number
             line_number = coverage_list[1].strip()
+            # Exclude code from line 183 onwards
+            if int(line_number) >= 183:
+                break
             # Ignore line 0s
             if int(line_number):
                 # Initialize line number & line coverage in overall_coverage_dict
@@ -119,7 +122,7 @@ plt.ylabel('interesting inputs')
 plt.show()
 
 # Plotting plot coverage vs duration
-plt.plot(plot_duration, plot_coverage)
-plt.xlabel('time')
-plt.ylabel('coverage')
-plt.show()
+# plt.plot(plot_duration, plot_coverage)
+# plt.xlabel('time')
+# plt.ylabel('coverage')
+# plt.show()
