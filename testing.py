@@ -19,12 +19,8 @@ if not str(sys.argv[1]).isnumeric():
 # Initialization of global variables
 coverage_dict = {}
 overall_coverage_dict = {}
-inputs = []
 plot_duration = []
-plot_coverage = []
 number_of_interesting_input = []
-# total_number_of_input = []
-# number_of_input_generated = 0
 
 # Set number of iterations from cmd line
 number_of_fuzz = int(sys.argv[1])
@@ -36,16 +32,6 @@ for _ in range(number_of_fuzz):
     subprocess.run(["./testing"])
     subprocess.run(["gcov", "testing.c", "-m"])
 
-    # subprocess.run(["cat", "testing.c.gcov"])
-
-    ### IGNORE!!! Using lcov to generate html report
-    # subprocess.run(["lcov", "--capture", "--directory", ".", "--output-file", "testing.info"])
-    # # subprocess.run(["geninfo", ".", "-o", "./testing.info"])
-    # subprocess.run(["genhtml", "testing.info", "--output-directory", "out"])
-    # subprocess.run(["google-chrome", "out/index.html"]) # not working??
-
-    # subprocess.run(["gcovr", "-v", "-gk", "--html", "--html-details", "-o", "coverage.html", "-s"])
-
     with open('testing.txt', 'w') as file1:
         with open ('testing.c.gcov', 'r') as file2:
             line = file2.read()
@@ -55,7 +41,6 @@ for _ in range(number_of_fuzz):
 
     with open ('testing.txt', 'r') as file:
         key = ""
-        coverage_cnt = 0
         for line in file.readlines():
             coverage_list = line.split(':')
             # Get number of times line is run
@@ -72,8 +57,6 @@ for _ in range(number_of_fuzz):
                     overall_coverage_dict[int(line_number)] = 0
                 # Check if coverage is not ##### or -
                 if coverage.isnumeric():
-                    # Calculate total line coverage in each iteration
-                    coverage_cnt += int(coverage)
                     # Generate key for each iteration
                     key += coverage + ","
                     # Add coverage for each line from previous coverage
@@ -91,21 +74,13 @@ for _ in range(number_of_fuzz):
     point_duration = time.time() - start_time
     plot_duration.append(point_duration)
 
-    # Calculate total line coverage, adding from previous iteration
-    if len(plot_coverage) != 0:
-        plot_coverage.append(coverage_cnt + plot_coverage[-1])
-    else:
-        plot_coverage.append(coverage_cnt)
-
     number_of_interesting_input.append(len(coverage_dict))
-    # number_of_input_generated += 1
-    # total_number_of_input.append(number_of_input_generated)
 
     # Printing outputs
     # print("Number of inputs generated: ", number_of_input_generated)
-    print("Coverage count: ", plot_coverage)
+    # print("Coverage count: ", plot_coverage)
     print("Duration: ", plot_duration)
-    print("Key length: ", len(key))
+    print("Coverage key length: ", len(key))
     print("Coverage: ", coverage_dict)
     print("Number of interesting inputs: ", len(coverage_dict))
 
@@ -116,19 +91,19 @@ print("Overall coverage: ", overall_coverage_dict)
 
 # Plotting number of interesting input vs total number of input
 total_number_of_input = [i for i in range(1, number_of_fuzz+1)]
-plt.plot(total_number_of_input, number_of_interesting_input)
-plt.xlabel('total number of inputs')
-plt.ylabel('interesting inputs')
-plt.show()
+# plt.plot(total_number_of_input, number_of_interesting_input)
+# plt.xlabel('total number of inputs')
+# plt.ylabel('interesting inputs')
+# plt.show()
 
-# Plotting plot coverage vs duration
-# plt.plot(plot_duration, plot_coverage)
+# Plotting number of interesting inputs vs time
+# plt.plot(plot_duration, number_of_interesting_input)
 # plt.xlabel('time')
-# plt.ylabel('coverage')
+# plt.ylabel('number of interesting inputs')
 # plt.show()
 
 # Plotting total number of inputs vs time
-# plt.plot(plot_duration, total_number_of_input)
-# plt.xlabel('time')
-# plt.ylabel('total number of inputs')
-# plt.show()
+plt.plot(plot_duration, total_number_of_input)
+plt.xlabel('time')
+plt.ylabel('number of inputs')
+plt.show()
