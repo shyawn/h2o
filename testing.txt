@@ -5,199 +5,267 @@
         -:    1:#include <stddef.h>
         -:    2:#include <stdint.h>
         -:    3:#include <assert.h>
-        -:    4:#include <string.h>
-        -:    5:#include <stdio.h>
-        -:    6:
-        -:    7:// #define SIZE_MAX 0xffffffffffffffffui64
-        -:    8:#define H2O_STRLIT(s) (s), sizeof(s) - 1
+        -:    4:#include <stdlib.h>
+        -:    5:#include <string.h>
+        -:    6:#include <stdio.h>
+        -:    7:#include <time.h>
+        -:    8:#include "testing.h"
         -:    9:
-        -:   10:#include "testing.h"
-        -:   11:
-        -:   12:
-        -:   13:const h2o_url_scheme_t H2O_URL_SCHEME_HTTP = {{H2O_STRLIT("http")}, 80, 0};
-        -:   14:const h2o_url_scheme_t H2O_URL_SCHEME_HTTPS = {{H2O_STRLIT("https")}, 443, 1};
-        -:   15:const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0 /* ??? masque might or might not be over TLS */};
+        -:   10:
+        -:   11:// #define SIZE_MAX 0xffffffffffffffffui64
+        -:   12:#define H2O_STRLIT(s) (s), sizeof(s) - 1
+        -:   13:
+        -:   14:
+        -:   15:
         -:   16:
-    #####:   17:size_t h2o_strtosize(const char *s, size_t len)
-        -:   18:{
-    #####:   19:    uint64_t v = 0, m = 1;
-    #####:   20:    const char *p = s + len;
-        -:   21:
-    #####:   22:    if (len == 0)
-    #####:   23:        goto Error;
-        -:   24:
-    #####:   25:    while (1) {
-    #####:   26:        int ch = *--p;
-    #####:   27:        if (!('0' <= ch && ch <= '9'))
-    #####:   28:            goto Error;
-    #####:   29:        v += (ch - '0') * m;
-    #####:   30:        if (p == s)
-    #####:   31:            break;
-    #####:   32:        m *= 10;
-        -:   33:        /* do not even try to overflow */
-    #####:   34:        if (m == 10000000000000000000ULL)
-    #####:   35:            goto Error;
-        -:   36:    }
-        -:   37:
-    #####:   38:    if (v >= SIZE_MAX)
-    #####:   39:        goto Error;
-    #####:   40:    return v;
-        -:   41:
-    #####:   42:Error:
-    #####:   43:    return SIZE_MAX;
-        -:   44:}
-        -:   45:
-    #####:   46:static h2o_iovec_t h2o_iovec_init(const void *base, size_t len)
-        -:   47:{
-        -:   48:    /* intentionally declared to take a "const void*" since it may contain any type of data and since _some_ buffers are constant */
-        -:   49:    h2o_iovec_t buf;
-    #####:   50:    buf.base = (char *)base;
-    #####:   51:    buf.len = len;
-    #####:   52:    return buf;
-        -:   53:}
-        -:   54:
-    #####:   55:const char *h2o_url_parse_hostport(const char *s, size_t len, h2o_iovec_t *host, uint16_t *port)
-        -:   56:{
-    #####:   57:    const char *token_start = s, *token_end, *end = s + len;
-        -:   58:
-    #####:   59:    *port = 65535;
-        -:   60:
-    #####:   61:    if (token_start == end)
-    #####:   62:        return NULL;
-        -:   63:
-    #####:   64:    if (*token_start == '[') {
-        -:   65:        /* is IPv6 address */
-    #####:   66:        ++token_start;
-    #####:   67:        if ((token_end = memchr(token_start, ']', end - token_start)) == NULL)
-    #####:   68:            return NULL;
-    #####:   69:        *host = h2o_iovec_init(token_start, token_end - token_start);
-    #####:   70:        token_start = token_end + 1;
-        -:   71:    } else {
-    #####:   72:        for (token_end = token_start; !(token_end == end || *token_end == '/' || *token_end == ':'); ++token_end)
-        -:   73:            ;
-    #####:   74:        *host = h2o_iovec_init(token_start, token_end - token_start);
-    #####:   75:        token_start = token_end;
-        -:   76:    }
-        -:   77:
-        -:   78:    /* disallow zero-length host */
-    #####:   79:    if (host->len == 0)
-    #####:   80:        return NULL;
-        -:   81:
-        -:   82:    /* parse port */
-    #####:   83:    if (token_start != end && *token_start == ':') {
-        -:   84:        size_t p;
-    #####:   85:        ++token_start;
-    #####:   86:        if ((token_end = memchr(token_start, '/', end - token_start)) == NULL)
-    #####:   87:            token_end = end;
-    #####:   88:        if ((p = h2o_strtosize(token_start, token_end - token_start)) >= 65535)
-    #####:   89:            return NULL;
-    #####:   90:        *port = (uint16_t)p;
-    #####:   91:        token_start = token_end;
-        -:   92:    }
+        -:   17:const h2o_url_scheme_t H2O_URL_SCHEME_HTTP = {{H2O_STRLIT("http")}, 80, 0};
+        -:   18:const h2o_url_scheme_t H2O_URL_SCHEME_HTTPS = {{H2O_STRLIT("https")}, 443, 1};
+        -:   19:const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0 /* ??? masque might or might not be over TLS */};
+        -:   20:
+        1:   21:int main(){
+        -:   22:    int intsec, returned_value;
+        -:   23:    time_t seconds;
+        -:   24:    char * url;
+        -:   25:    size_t url_len;
+        -:   26:    h2o_url_t * parsed;
+        -:   27:
+        1:   28:    time (&seconds);
+        1:   29:    intsec = (int) seconds;
+        1:   30:    srand (intsec);
+        -:   31:
+        1:   32:    url = new_url ();
+        -:   33:    // printf("This is the url: %s\n", url);
+        1:   34:    url_len = new_url_len ();
+        1:   35:    parsed = new_h2o_url ();
+        -:   36:
+        1:   37:    returned_value = h2o_url_parse(url, url_len, parsed);
+        1:   38:    printf ("result: %d\n", returned_value);
+        1:   39:    free (url);
+        1:   40:    url = NULL;
+        1:   41:    free (parsed -> scheme -> name.base);
+        1:   42:    free (parsed -> authority.base);
+        1:   43:    parsed -> authority.base = NULL;
+        1:   44:    free (parsed -> host.base);
+        1:   45:    parsed -> host.base = NULL;
+        1:   46:    free (parsed -> path.base);
+        1:   47:    parsed -> path.base = NULL;
+        -:   48:
+        1:   49:    return 0;
+        -:   50:}
+        -:   51:
+    #####:   52:size_t h2o_strtosize(const char *s, size_t len)
+        -:   53:{
+    #####:   54:    uint64_t v = 0, m = 1;
+    #####:   55:    const char *p = s + len;
+        -:   56:
+    #####:   57:    if (len == 0)
+    #####:   58:        goto Error;
+        -:   59:
+    #####:   60:    while (1) {
+    #####:   61:        int ch = *--p;
+    #####:   62:        if (!('0' <= ch && ch <= '9'))
+    #####:   63:            goto Error;
+    #####:   64:        v += (ch - '0') * m;
+    #####:   65:        if (p == s)
+    #####:   66:            break;
+    #####:   67:        m *= 10;
+        -:   68:        /* do not even try to overflow */
+    #####:   69:        if (m == 10000000000000000000ULL)
+    #####:   70:            goto Error;
+        -:   71:    }
+        -:   72:
+    #####:   73:    if (v >= SIZE_MAX)
+    #####:   74:        goto Error;
+    #####:   75:    return v;
+        -:   76:
+    #####:   77:Error:
+    #####:   78:    return SIZE_MAX;
+        -:   79:}
+        -:   80:
+    #####:   81:static h2o_iovec_t h2o_iovec_init(const void *base, size_t len)
+        -:   82:{
+        -:   83:    /* intentionally declared to take a "const void*" since it may contain any type of data and since _some_ buffers are constant */
+        -:   84:    h2o_iovec_t buf;
+    #####:   85:    buf.base = (char *)base;
+    #####:   86:    buf.len = len;
+    #####:   87:    return buf;
+        -:   88:}
+        -:   89:
+    #####:   90:const char *h2o_url_parse_hostport(const char *s, size_t len, h2o_iovec_t *host, uint16_t *port)
+        -:   91:{
+    #####:   92:    const char *token_start = s, *token_end, *end = s + len;
         -:   93:
-    #####:   94:    return token_start;
-        -:   95:}
-        -:   96:
-        -:   97:
-    #####:   98:static int parse_authority_and_path(const char *src, const char *url_end, h2o_url_t *parsed)
-        -:   99:{
-    #####:  100:    const char *p = h2o_url_parse_hostport(src, url_end - src, &parsed->host, &parsed->_port);
-    #####:  101:    if (p == NULL)
-    #####:  102:        return -1;
-    #####:  103:    parsed->authority = h2o_iovec_init(src, p - src);
-    #####:  104:    if (p == url_end) {
-    #####:  105:        parsed->path = h2o_iovec_init(H2O_STRLIT("/"));
+    #####:   94:    *port = 65535;
+        -:   95:
+    #####:   96:    if (token_start == end)
+    #####:   97:        return NULL;
+        -:   98:
+    #####:   99:    if (*token_start == '[') {
+        -:  100:        /* is IPv6 address */
+    #####:  101:        ++token_start;
+    #####:  102:        if ((token_end = memchr(token_start, ']', end - token_start)) == NULL)
+    #####:  103:            return NULL;
+    #####:  104:        *host = h2o_iovec_init(token_start, token_end - token_start);
+    #####:  105:        token_start = token_end + 1;
         -:  106:    } else {
-    #####:  107:        if (*p != '/')
-    #####:  108:            return -1;
-    #####:  109:        parsed->path = h2o_iovec_init(p, url_end - p);
-        -:  110:    }
-    #####:  111:    return 0;
-        -:  112:}
-        -:  113:
-        1:  114:static const char *parse_scheme(const char *s, const char *end, const h2o_url_scheme_t **scheme)
-        -:  115:{
-        1:  116:    if (end - s >= 5 && memcmp(s, "http:", 5) == 0) {
-    #####:  117:        *scheme = &H2O_URL_SCHEME_HTTP;
-    #####:  118:        return s + 5;
-        1:  119:    } else if (end - s >= 6 && memcmp(s, "https:", 6) == 0) {
-    #####:  120:        *scheme = &H2O_URL_SCHEME_HTTPS;
-    #####:  121:        return s + 6;
-        1:  122:    } else if (end - s >= 7 && memcmp(s, "masque:", 7) == 0) {
-    #####:  123:        *scheme = &H2O_URL_SCHEME_MASQUE;
-    #####:  124:        return s + 7;
-        -:  125:    }
-        1:  126:    return NULL;
-        -:  127:}
+    #####:  107:        for (token_end = token_start; !(token_end == end || *token_end == '/' || *token_end == ':'); ++token_end)
+        -:  108:            ;
+    #####:  109:        *host = h2o_iovec_init(token_start, token_end - token_start);
+    #####:  110:        token_start = token_end;
+        -:  111:    }
+        -:  112:
+        -:  113:    /* disallow zero-length host */
+    #####:  114:    if (host->len == 0)
+    #####:  115:        return NULL;
+        -:  116:
+        -:  117:    /* parse port */
+    #####:  118:    if (token_start != end && *token_start == ':') {
+        -:  119:        size_t p;
+    #####:  120:        ++token_start;
+    #####:  121:        if ((token_end = memchr(token_start, '/', end - token_start)) == NULL)
+    #####:  122:            token_end = end;
+    #####:  123:        if ((p = h2o_strtosize(token_start, token_end - token_start)) >= 65535)
+    #####:  124:            return NULL;
+    #####:  125:        *port = (uint16_t)p;
+    #####:  126:        token_start = token_end;
+        -:  127:    }
         -:  128:
-        -:  129:
-    #####:  130:int h2o_url_parse(const char *url, size_t url_len, h2o_url_t *parsed)
-        -:  131:{
-        -:  132:    const char *url_end, *p;
-        -:  133:
-    #####:  134:    if (url_len == SIZE_MAX)
-    #####:  135:        url_len = strlen(url);
-    #####:  136:    url_end = url + url_len;
-        -:  137:
-        -:  138:    /* check and skip scheme */
-    #####:  139:    if ((p = parse_scheme(url, url_end, &parsed->scheme)) == NULL)
-    #####:  140:        return -1;
-        -:  141:
-        -:  142:    /* skip "//" */
-    #####:  143:    if (!(url_end - p >= 2 && p[0] == '/' && p[1] == '/'))
-    #####:  144:        return -1;
-    #####:  145:    p += 2;
-        -:  146:
-    #####:  147:    return parse_authority_and_path(p, url_end, parsed);
-        -:  148:}
-        -:  149:
-        1:  150:int main(){
-        1:  151:    unsigned long long testValue = 0xFFFFFFFFFFFFFFFF;
-        1:  152:    uint8_t *Data = &testValue;
-        1:  153:    const char *url = (const char *)Data;
-        -:  154:    size_t url_len;
-        -:  155:    h2o_url_t uri;
-        1:  156:    h2o_url_t *parsed = &uri;
-        -:  157:    int ret;
-        1:  158:    printf("Test\n");
-        -:  159:    const char *url_end, *p;
-        -:  160:
-        1:  161:    if (url_len == SIZE_MAX)
-    #####:  162:        url_len = strlen(url);
-        1:  163:    url_end = url + url_len;
+    #####:  129:    return token_start;
+        -:  130:}
+        -:  131:
+        -:  132:
+    #####:  133:static int parse_authority_and_path(const char *src, const char *url_end, h2o_url_t *parsed)
+        -:  134:{
+    #####:  135:    const char *p = h2o_url_parse_hostport(src, url_end - src, &parsed->host, &parsed->_port);
+    #####:  136:    if (p == NULL)
+    #####:  137:        return -1;
+    #####:  138:    parsed->authority = h2o_iovec_init(src, p - src);
+    #####:  139:    if (p == url_end) {
+    #####:  140:        parsed->path = h2o_iovec_init(H2O_STRLIT("/"));
+        -:  141:    } else {
+    #####:  142:        if (*p != '/')
+    #####:  143:            return -1;
+    #####:  144:        parsed->path = h2o_iovec_init(p, url_end - p);
+        -:  145:    }
+    #####:  146:    return 0;
+        -:  147:}
+        -:  148:
+        1:  149:static const char *parse_scheme(const char *s, const char *end, const h2o_url_scheme_t **scheme)
+        -:  150:{
+        1:  151:    if (end - s >= 5 && memcmp(s, "http:", 5) == 0) {
+    #####:  152:        *scheme = &H2O_URL_SCHEME_HTTP;
+    #####:  153:        return s + 5;
+        1:  154:    } else if (end - s >= 6 && memcmp(s, "https:", 6) == 0) {
+    #####:  155:        *scheme = &H2O_URL_SCHEME_HTTPS;
+    #####:  156:        return s + 6;
+        1:  157:    } else if (end - s >= 7 && memcmp(s, "masque:", 7) == 0) {
+    #####:  158:        *scheme = &H2O_URL_SCHEME_MASQUE;
+    #####:  159:        return s + 7;
+        -:  160:    }
+        1:  161:    return NULL;
+        -:  162:}
+        -:  163:
         -:  164:
-        -:  165:    /* check and skip scheme */
-        1:  166:    if ((p = parse_scheme(url, url_end, &parsed->scheme)) == NULL)
-        1:  167:        ret = -1;
-        1:  168:        goto RET;
-        -:  169:
-        -:  170:    // /* skip "//" */
-        -:  171:    if (!(url_end - p >= 2 && p[0] == '/' && p[1] == '/'))
-        -:  172:        ret = -1;
-        -:  173:        goto RET;
-        -:  174:    p += 2;
-        -:  175:
-        -:  176:    ret = parse_authority_and_path(p, url_end, parsed);
-        -:  177:
-        1:  178:    RET:
-        -:  179:
-        -:  180:
-        -:  181:    // ret = h2o_url_parse((const char *)Data, Size, &url);
-        1:  182:    if (ret != -1) {
-    #####:  183:        printf("Not passed here\n");
-    #####:  184:        size_t total = 0, i;
-    #####:  185:        assert(uri.scheme != NULL);
-    #####:  186:        for (i = 0; i < uri.authority.len; i++)
-    #####:  187:            if (uri.authority.base[i])
-    #####:  188:                total++;
-    #####:  189:        for (i = 0; i < uri.host.len; i++)
-    #####:  190:            if (uri.host.base[i])
-    #####:  191:                total++;
-    #####:  192:        for (i = 0; i < uri.path.len; i++)
-    #####:  193:            if (uri.path.base[i])
-    #####:  194:                total++;
-    #####:  195:        assert(total <= url_len * 2);
-        -:  196:    }
-        1:  197:    return 0;
-        -:  198:}
-        -:  199:
+        1:  165:int h2o_url_parse(const char *url, size_t url_len, h2o_url_t *parsed)
+        -:  166:{
+        -:  167:    const char *url_end, *p;
+        -:  168:
+        1:  169:    if (url_len == SIZE_MAX)
+    #####:  170:        url_len = strlen(url);
+        1:  171:    url_end = url + url_len;
+        -:  172:
+        -:  173:    /* check and skip scheme */
+        1:  174:    if ((p = parse_scheme(url, url_end, &parsed->scheme)) == NULL)
+        1:  175:        return -1;
+        -:  176:
+        -:  177:    /* skip "//" */
+    #####:  178:    if (!(url_end - p >= 2 && p[0] == '/' && p[1] == '/'))
+    #####:  179:        return -1;
+    #####:  180:    p += 2;
+        -:  181:
+    #####:  182:    return parse_authority_and_path(p, url_end, parsed);
+        -:  183:}
+        -:  184:
+     1597:  185:char get_random_character()
+        -:  186:{
+        -:  187:	unsigned int i;
+     1597:  188:    i = rand () % 62 + 65;
+     1597:  189:    return (char) i;
+        -:  190:}
+        -:  191:
+        1:  192:char * new_url () {
+        -:  193:    char * url;
+        -:  194:    char a;
+        -:  195:    int url_len;
+        -:  196:
+        1:  197:    url_len =  rand () % 1000 + 1;
+        1:  198:    url = (char *) malloc (url_len * sizeof (char));
+        -:  199:    
+      847:  200:    for (int i = 0; i < url_len; i++) {
+      846:  201:        a = get_random_character();
+      846:  202:        url[i] = a;
+        -:  203:    }
+        1:  204:    return url;
+        -:  205:}
+        -:  206:
+        1:  207:size_t new_url_len () {
+        -:  208:    size_t url_len;
+        1:  209:    url_len = rand () % 1000 + 1;
+        1:  210:    return url_len;
+        -:  211:}
+        -:  212:
+        4:  213:char * new_base () {
+        -:  214:    char * base;
+        -:  215:    char a;
+        -:  216:    int base_len;
+        -:  217:
+        4:  218:    base_len =  rand () % 500 + 1;
+        4:  219:    base = (char *) malloc (base_len * sizeof (char));
+        -:  220:    
+      755:  221:    for (int i = 0; i < base_len; i++) {
+      751:  222:        a = get_random_character();
+      751:  223:        base[i] = a;
+        -:  224:    }
+        4:  225:    return base;
+        -:  226:}
+        -:  227:
+        4:  228:size_t new_len () {
+        -:  229:    size_t len;
+        4:  230:    len = rand () % 500 + 1;
+        4:  231:    return len;
+        -:  232:}
+        -:  233:
+        2:  234:uint16_t new_uint16 () {
+        -:  235:    uint16_t new_uint16;
+        2:  236:    new_uint16 = rand () % 65535 + 1;
+        2:  237:    return new_uint16;
+        -:  238:}
+        -:  239:
+        4:  240:h2o_iovec_t new_h2o_iovec () {
+        -:  241:    h2o_iovec_t new_h2o_iovec;
+        4:  242:    new_h2o_iovec.base = (char *) malloc (1000 * sizeof (char));
+        4:  243:    strcpy (new_h2o_iovec.base, new_base ());
+        4:  244:    new_h2o_iovec.len = new_len ();
+        4:  245:    return new_h2o_iovec;
+        -:  246:}
+        -:  247:
+        1:  248:const h2o_url_scheme_t * new_h2o_url_scheme () {
+        1:  249:    h2o_url_scheme_t * new_h2o_scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
+        -:  250:    int new_isssl;
+        1:  251:    new_isssl = rand () % 2;
+        1:  252:    new_h2o_scheme -> name = new_h2o_iovec ();
+        1:  253:    new_h2o_scheme -> default_port = new_uint16 ();
+        1:  254:    new_h2o_scheme -> is_ssl = new_isssl;
+        1:  255:    return new_h2o_scheme;
+        -:  256:}
+        -:  257:
+        1:  258:h2o_url_t * new_h2o_url () {
+        1:  259:    h2o_url_t * new_h2o_url = (h2o_url_t *) malloc (sizeof (h2o_url_t));
+        1:  260:    new_h2o_url -> scheme = new_h2o_url_scheme ();
+        1:  261:    new_h2o_url -> authority = new_h2o_iovec ();
+        1:  262:    new_h2o_url -> host = new_h2o_iovec ();
+        1:  263:    new_h2o_url -> path = new_h2o_iovec ();
+        1:  264:    new_h2o_url -> _port = new_uint16 ();
+        1:  265:    return new_h2o_url;
+        -:  266:}
+        -:  267:
