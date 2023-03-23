@@ -30,6 +30,7 @@ int main(){
     srand (intsec);
 
     url = new_url ();
+    // printf("This is the url: %s\n", url);
     url_len = new_url_len ();
     parsed = new_h2o_url ();
 
