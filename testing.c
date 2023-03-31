@@ -296,8 +296,6 @@ char * new_path () {
 char * new_url (char * scheme, char * host, char * port, char * path) {
     char * url;
 
-    //url = (char *) malloc (500 * sizeof (char));
-    //port = (char *) malloc (6 * sizeof (char));
     printf ("%s\n", url);
     strcat (url, scheme);
     printf ("%s %d\n", scheme, strlen(scheme));
