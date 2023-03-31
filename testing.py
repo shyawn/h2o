@@ -4,6 +4,7 @@ import time
 # import matplotlib.pyplot as plt
 # use "pip install plotext" before running
 import plotext as plt
+from collections import deque
 
 if len(sys.argv) < 2:
     print("Please provide 1 argument (number of fuzz)")
@@ -18,20 +19,20 @@ if not str(sys.argv[1]).isnumeric():
 
 # Initialization of global variables
 coverage_dict = {}
-overall_coverage_dict = {}
+# overall_coverage_dict = {}
 plot_duration = []
 number_of_interesting_input = []
+
+# Initialization of Seed
+seed = deque()
 
 # Set number of iterations from cmd line
 number_of_fuzz = int(sys.argv[1])
 
-start_time = time.time()
-for _ in range(number_of_fuzz):
-    print("\nIteration: ", _)
-    subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
-    subprocess.run(["./testing"])
-    subprocess.run(["gcov", "testing.c", "-m"])
-
+# Helper functions
+def read_gcov(output_url):
+    # global coverage_dict, overall_coverage_dict, seed
+    global coverage_dict, seed
     with open('testing.txt', 'w') as file1:
         with open ('testing.c.gcov', 'r') as file2:
             line = file2.read()
@@ -53,41 +54,63 @@ for _ in range(number_of_fuzz):
             # Ignore line 0s
             if int(line_number):
                 # Initialize line number & line coverage in overall_coverage_dict
-                if not (int(line_number) in overall_coverage_dict):
-                    overall_coverage_dict[int(line_number)] = 0
+                # if not (int(line_number) in overall_coverage_dict):
+                    # overall_coverage_dict[int(line_number)] = 0
                 # Check if coverage is not ##### or -
                 if coverage.isnumeric():
                     # Generate key for each iteration
                     key += coverage + ","
                     # Add coverage for each line from previous coverage
-                    if (int(line_number) in overall_coverage_dict):
-                        overall_coverage_dict[int(line_number)] += int(coverage)
+                    # if (int(line_number) in overall_coverage_dict):
+                        # overall_coverage_dict[int(line_number)] += int(coverage)
                 else:
                     key += "#" + ","
         # Add unique keys to coverage_dict
         if key not in coverage_dict:
             coverage_dict[key] = 0
+            # store in seed if output is interesting
+            seed.append(output_url)
 
     file.close()
 
-    # Calculate time taken for each iteration
-    point_duration = time.time() - start_time
-    plot_duration.append(point_duration)
 
-    number_of_interesting_input.append(len(coverage_dict))
+# Main running code
+start_time = time.time()
+for _ in range(number_of_fuzz):
+    print("\nIteration: ", _)
+    subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
+    # subprocess.run(["./testing"])
 
-    # Printing outputs
-    # print("Number of inputs generated: ", number_of_input_generated)
-    # print("Coverage count: ", plot_coverage)
-    print("Duration: ", plot_duration)
-    print("Coverage key length: ", len(key))
-    print("Coverage: ", coverage_dict)
-    print("Number of interesting inputs: ", len(coverage_dict))
+    # Getting output from testing.c
+    if seed:
+        output_url = subprocess.check_output(["./testing"]) # add arguments later
+        # deque.popleft() -> for url argument
+    else:
+        output_url = subprocess.check_output(["./testing"])
+    output_url = output_url.decode("utf-8")
+
+    subprocess.run(["gcov", "testing.c", "-m"])
+
+    read_gcov(output_url)
+
+    # # Calculate time taken for each iteration
+    # point_duration = time.time() - start_time
+    # plot_duration.append(point_duration)
+
+    # number_of_interesting_input.append(len(coverage_dict))
+
+    # # Printing outputs
+    # # print("Number of inputs generated: ", number_of_input_generated)
+    # # print("Coverage count: ", plot_coverage)
+    # print("Duration: ", plot_duration)
+    # print("Coverage key length: ", len(key))
+    # print("Coverage: ", coverage_dict)
+    # print("Number of interesting inputs: ", len(coverage_dict))
 
 end_time = time.time()
 total_duration = end_time - start_time
 print("Total time taken: ", total_duration)
-print("Overall coverage: ", overall_coverage_dict)
+# print("Overall coverage: ", overall_coverage_dict)
 
 # Plotting number of interesting input vs total number of input
 total_number_of_input = [i for i in range(1, number_of_fuzz+1)]
