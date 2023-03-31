@@ -33,7 +33,7 @@ char * new_scheme ();
 char * new_host ();
 uint16_t new_port ();
 char * new_path ();
-char * new_url ();
+char * new_url (char * scheme, char * host, char * port, char * path);
 size_t new_url_len ();
 char * new_base ();
 size_t new_len ();

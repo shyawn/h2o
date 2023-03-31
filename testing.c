@@ -21,20 +21,35 @@ const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0
 int main(){
     int intsec, returned_value;
     time_t seconds;
-    char * url;
+    char * url, * scheme, * host, * port, * path;
     size_t url_len;
     h2o_url_t * parsed;
-
+    printf ("hi\n");
     time (&seconds);
     intsec = (int) seconds;
     srand (intsec);
 
-    url = new_url ();
-    printf("This is the url: %s\n", url);
-    url_len = new_url_len ();
-    parsed = new_h2o_url ();
+    scheme = (char *) malloc (10 * sizeof (char));
+    port = (char *) malloc (10 * sizeof (char));
+    url = (char *) malloc (500 * sizeof (char));
+    parsed = (h2o_url_t *) malloc (sizeof (h2o_url_t));
+    parsed -> scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
 
+    scheme = new_scheme ();
+    host = new_host ();
+    sprintf (port, "%d", new_port());
+    path = new_path();
+    url = new_url (scheme, host, port, path);
+    printf("Url: %s\n", url);
+    url_len = strlen (scheme) + strlen (host) + strlen (port) + 1;
+    printf ("%d\n", url_len);
     returned_value = h2o_url_parse(url, url_len, parsed);
+    printf ("%s %d %d %d\n", parsed -> scheme -> name.base, parsed -> scheme -> name.len, parsed -> scheme -> default_port, parsed -> scheme -> is_ssl);
+    printf ("%s %d %s %d %s %d\n", parsed -> authority.base, parsed -> authority.len, parsed -> host.base, parsed -> host.len, parsed -> path.base, parsed -> path.len);
+    printf ("%d\n", parsed -> _port);
+
+
+    
     printf ("result: %d\n", returned_value);
 
     return 0;
@@ -233,7 +248,7 @@ char * new_host () {
     toggle = rand () % 2;
     
     if (toggle) {
-        idx = rand () % 800000;
+        idx = rand () % 100000;
         host = (char *) malloc (strlen(host_list[idx]) * sizeof (char));
         strcpy (host, host_list[idx]);
     }
@@ -271,22 +286,19 @@ char * new_path () {
     return path;
 }
 
-char * new_url () {
-    char * url, * host, * scheme, * port, * path;
+char * new_url (char * scheme, char * host, char * port, char * path) {
+    char * url;
 
-    url = (char *) malloc (500 * sizeof (char));
-    port = (char *) malloc (6 * sizeof (char));
-    url = new_scheme ();
-    printf ("%s\n", url);
-    host = new_host();
-    printf ("%s\n", host);
+    //url = (char *) malloc (500 * sizeof (char));
+    //port = (char *) malloc (6 * sizeof (char));
+    strcat (url, scheme);
+    printf ("%s %d\n", scheme, strlen(scheme));
+    printf ("%s %d\n", host, strlen (host));
     strcat (url, host);
     strcat (url, ":");
-    sprintf (port, "%d", new_port());
-    printf ("%s\n", port);
+    printf ("%s %d\n", port, strlen(port));
     strcat (url, port);
-    path = new_path();
-    printf ("%s\n", path);
+    printf ("%s %d\n", path, strlen (path));
     strcat (url, path);
     return url;
 }
@@ -337,7 +349,12 @@ const h2o_url_scheme_t * new_h2o_url_scheme () {
 }
 
 h2o_url_t * new_h2o_url () {
-    h2o_url_t * new_h2o_url = (h2o_url_t *) malloc (sizeof (h2o_url_t));
+    //h2o_url_t * new_h2o_url = (h2o_url_t *) malloc (sizeof (h2o_url_t));
+    h2o_url_t * new_h2o_url;
+    h2o_url_scheme_t * new_h2o_scheme;
+    h2o_iovec_t new_authority;
+    h2o_iovec_t new_host;
+    h2o_iovec_t new_path;
     new_h2o_url -> scheme = new_h2o_url_scheme ();
     new_h2o_url -> authority = new_h2o_iovec ();
     new_h2o_url -> host = new_h2o_iovec ();
