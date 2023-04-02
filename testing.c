@@ -19,38 +19,54 @@ const h2o_url_scheme_t H2O_URL_SCHEME_HTTPS = {{H2O_STRLIT("https")}, 443, 1};
 const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0 /* ??? masque might or might not be over TLS */};
 
 int main(){
-    int intsec, returned_value;
+    int intsec, choose_mutation, returned_value;
     time_t seconds;
     char * url, * scheme, * host, * port, * path;
     size_t url_len;
     h2o_url_t * parsed;
-    printf ("hi\n");
     time (&seconds);
     intsec = (int) seconds;
     srand (intsec);
 
     scheme = (char *) malloc (10 * sizeof (char));
     port = (char *) malloc (10 * sizeof (char));
-    url = (char *) malloc (500 * sizeof (char));
+    
     parsed = (h2o_url_t *) malloc (sizeof (h2o_url_t));
     parsed -> scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
-    printf ("hi\n");
     scheme = new_scheme ();
-    printf ("hi\n");
     host = new_host ();
-    printf ("hi\n");
     sprintf (port, "%d", new_port());
-    printf ("hi\n");
     path = new_path();
-    printf ("hi\n");
+    printf ("%s\n", scheme);
+    printf ("%s\n", host);
+    printf ("%s\n", port);
+    printf ("%s\n", path);
+
+    choose_mutation = rand () % 4;
+    printf ("%d\n", choose_mutation);
+    if (choose_mutation == 0) {
+        strcpy(scheme, mutate_scheme (scheme));
+    }
+    else if (choose_mutation == 1) {
+        strcpy (host, mutate_host (host));
+    }
+    else if (choose_mutation == 2) {
+        strcpy (port, mutate_port (port));
+    }
+    else {
+        strcpy (path, mutate_path (path));
+    }
+
+    printf ("%s\n", scheme);
+    printf ("%s\n", host);
+    printf ("%s\n", port);
+    printf ("%s\n", path);
+
     url = new_url (scheme, host, port, path);
-    printf ("hi\n");
     printf("Url: %s\n", url);
     url_len = strlen (scheme) + strlen (host) + strlen (port) + 1;
     printf ("%d\n", url_len);
-    printf ("hi\n");
     returned_value = h2o_url_parse(url, url_len, parsed);
-    printf ("hi\n");
     printf ("%s %d %d %d\n", parsed -> scheme -> name.base, parsed -> scheme -> name.len, parsed -> scheme -> default_port, parsed -> scheme -> is_ssl);
     printf ("%s %d %s %d %s %d\n", parsed -> authority.base, parsed -> authority.len, parsed -> host.base, parsed -> host.len, parsed -> path.base, parsed -> path.len);
     printf ("%d\n", parsed -> _port);
@@ -217,6 +233,12 @@ char get_random_character_host () {
     return (char) a;
 }
 
+char get_random_character_port () {
+    unsigned int a;
+    a = rand () % 10 + 48;
+    return (char) a;
+}
+
 char get_random_character_path () {
     unsigned int a;
     a = rand () % 94 + 33;
@@ -295,18 +317,13 @@ char * new_path () {
 
 char * new_url (char * scheme, char * host, char * port, char * path) {
     char * url;
+    url = (char *) malloc (500 * sizeof (char));
 
-    printf ("%s\n", url);
     strcat (url, scheme);
-    printf ("%s %d\n", scheme, strlen(scheme));
-    printf ("%s %s %d\n", url, host, strlen (host));
     strcat (url, host);
     strcat (url, ":");
-    printf ("%s %d\n", port, strlen(port));
     strcat (url, port);
-    printf ("%s %d\n", path, strlen (path));
     strcat (url, path);
-    printf ("%s\n", url);
     return url;
 }
 
@@ -337,3 +354,51 @@ h2o_url_t * new_h2o_url () {
     return new_h2o_url;
 }
 
+char * mutate_scheme (char * scheme) {
+    char * mutated_scheme;
+    static const char* scheme_list[] = {"http://", "https://", "masque://", "ftp://", "file-", "mailto:", "tel:", "sms:", "skype:"};
+    int scheme_idx, scheme_len, idx;
+
+    mutated_scheme = (char *) malloc (10 * sizeof (char));
+    scheme_len = strlen(scheme);
+    scheme_idx = rand () % 10;
+    if (scheme_idx == 9) {
+        idx = rand () % scheme_len;
+        scheme [idx] = get_random_character_path ();
+        return scheme;
+    }
+    else {
+        strcpy (mutated_scheme, scheme_list [scheme_idx]);
+        return mutated_scheme;
+    }
+    
+}
+
+char * mutate_host (char * host) {
+    int host_len, idx;
+
+    host_len = strlen (host);
+    idx = rand () % host_len;
+    host [idx] = get_random_character_host ();
+    
+    return host;
+}
+
+char * mutate_port (char * port) {
+    int port_len, idx;
+
+    port_len = strlen (port);
+    idx = rand () % port_len;
+    port [idx] = get_random_character_port ();
+    
+    return port;
+}
+
+char * mutate_path (char * path) {
+    int path_len, idx;
+
+    path_len = strlen (path);
+    idx = rand () % path_len;
+    path [idx] = get_random_character_path ();
+    return path;
+}

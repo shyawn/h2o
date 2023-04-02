@@ -27,6 +27,7 @@ static const char *parse_scheme(const char *s, const char *end, const h2o_url_sc
 int h2o_url_parse(const char *url, size_t url_len, h2o_url_t *parsed);
 char get_random_character();
 char get_random_character_host ();
+char get_random_character_port ();
 char get_random_character_path ();
 char get_random_small_alphabet ();
 char * new_scheme ();
@@ -37,3 +38,7 @@ char * new_url (char * scheme, char * host, char * port, char * path);
 h2o_iovec_t new_h2o_iovec ();
 const h2o_url_scheme_t * new_h2o_url_scheme ();
 h2o_url_t * new_h2o_url ();
+char * mutate_scheme (char * scheme);
+char * mutate_host (char * host);
+char * mutate_port (char * port);
+char * mutate_path (char * path);
