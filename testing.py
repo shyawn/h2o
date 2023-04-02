@@ -26,6 +26,16 @@ number_of_interesting_input = []
 # Initialization of Seed
 seed = deque()
 
+# Total seed
+# Note: Some of the seed might not be executed because of either time constraint or exception
+total_seed = set()
+
+ENERGY = 50
+
+# TODO: Complete the assign energy function
+def assign_energy(url):
+    return ENERGY
+
 # Set number of iterations from cmd line
 number_of_fuzz = int(sys.argv[1])
 
@@ -69,7 +79,9 @@ def read_gcov(output_url):
         if key not in coverage_dict:
             coverage_dict[key] = 0
             # store in seed if output is interesting
-            seed.append(output_url)
+            energy = assign_energy(output_url)
+            seed.append((output_url, energy))
+            total_seed.add(output_url)
 
     file.close()
 
@@ -83,15 +95,25 @@ for _ in range(number_of_fuzz):
 
     # Getting output from testing.c
     if seed:
-        output_url = subprocess.check_output(["./testing"]) # add arguments later
+        data = seed.popleft()
+        url = data[0]
+        energy = data[1]
+        # Run testing for n number of times, where n is the assigned energy
+        for i in range(energy):
+            output_url = subprocess.check_output(["./testing", f"{url}"]) # add arguments later
+            output_url = output_url.decode("utf-8")
+
+            subprocess.run(["gcov", "testing.c", "-m"])
+
+            read_gcov(output_url)
         # deque.popleft() -> for url argument
     else:
         output_url = subprocess.check_output(["./testing"])
-    output_url = output_url.decode("utf-8")
+        output_url = output_url.decode("utf-8")
 
-    subprocess.run(["gcov", "testing.c", "-m"])
+        subprocess.run(["gcov", "testing.c", "-m"])
 
-    read_gcov(output_url)
+        read_gcov(output_url)
 
     # # Calculate time taken for each iteration
     # point_duration = time.time() - start_time
