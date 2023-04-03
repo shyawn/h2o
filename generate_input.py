@@ -24,7 +24,7 @@ def new_host ():
             host[i] = get_random_character_host ()
         host[host_len - (after_dot_len + 1)] = "."
         for j in range (host_len - after_dot_len, host_len):
-            host[j] = get_random_character_host ()
+            host[j] = get_random_small_alphabet ()
     return host
 
 def new_port ():
@@ -43,4 +43,19 @@ def new_path ():
 def get_random_character_host ():
     toggle = random.randint (0, 1)
     if toggle == 0:
-        
+        asciicode = random.randint (45, 57)
+        while asciicode == 47:
+            asciicode = random.randint (45, 57)
+    else:
+        asciicode = random.randint (97, 122)
+    return chr(asciicode)
+
+def get_random_small_alphabet ():
+    asciicode = random.randint (97, 122)
+    return chr (asciicode)
+
+def get_random_character_path ():
+    asciicode = random.randint (33, 126)
+    while asciicode == 34 or asciicode == 42 or asciicode == 47 or asciicode == 58 or asciicode == 60 or asciicode == 62 or asciicode == 63 or asciicode == 92 or asciicode == 124:
+        asciicode = random.randint (33, 126)
+    return chr (asciicode)
