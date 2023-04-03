@@ -39,3 +39,8 @@ def new_path ():
     for i in range (1, path_len):
         path[i] = get_random_character_path ()
     return path
+
+def get_random_character_host ():
+    toggle = random.randint (0, 1)
+    if toggle == 0:
+        
