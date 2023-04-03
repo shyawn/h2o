@@ -37,6 +37,8 @@ int main(){
     host = new_host ();
     sprintf (port, "%d", new_port());
     path = new_path();
+
+
     printf ("%s\n", scheme);
     printf ("%s\n", host);
     printf ("%s\n", port);
@@ -67,11 +69,10 @@ int main(){
     url_len = strlen (scheme) + strlen (host) + strlen (port) + 1;
     printf ("%d\n", url_len);
     returned_value = h2o_url_parse(url, url_len, parsed);
+
     printf ("%s %d %d %d\n", parsed -> scheme -> name.base, parsed -> scheme -> name.len, parsed -> scheme -> default_port, parsed -> scheme -> is_ssl);
     printf ("%s %d %s %d %s %d\n", parsed -> authority.base, parsed -> authority.len, parsed -> host.base, parsed -> host.len, parsed -> path.base, parsed -> path.len);
     printf ("%d\n", parsed -> _port);
-
-
     
     printf ("result: %d\n", returned_value);
 
