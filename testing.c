@@ -225,7 +225,7 @@ char get_random_character_host () {
     if (i) {
         a = rand () % 13 + 45;
         while (a == 47) {
-            a = rand () % 12 + 46;
+            a = rand () % 13 + 45;
         }
     }
     else {
