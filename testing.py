@@ -26,6 +26,10 @@ number_of_interesting_input = []
 # Initialization of Seed
 seed = deque()
 
+# Initialization of probability for scheme, host, port and path
+# Note: 0 -> scheme, 1 -> host, 2 -> port, 3 -> path
+p_map = {0: 25, 1: 25, 2: 25, 3: 25}
+
 # Total seed
 # Note: Some of the seed might not be executed because of either time constraint or exception
 total_seed = set()
@@ -40,7 +44,7 @@ def assign_energy(url):
 number_of_fuzz = int(sys.argv[1])
 
 # Helper functions
-def read_gcov(output_url):
+def read_gcov(scheme, host, port, path):
     # global coverage_dict, overall_coverage_dict, seed
     global coverage_dict, seed
     with open('testing.txt', 'w') as file1:
@@ -79,8 +83,9 @@ def read_gcov(output_url):
         if key not in coverage_dict:
             coverage_dict[key] = 0
             # store in seed if output is interesting
+            output_url = scheme + host + port + path
             energy = assign_energy(output_url)
-            seed.append((output_url, energy))
+            seed.append((scheme, host, port, path, energy))
             total_seed.add(output_url)
 
     file.close()
@@ -100,12 +105,12 @@ for _ in range(number_of_fuzz):
         energy = data[1]
         # Run testing for n number of times, where n is the assigned energy
         for i in range(energy):
-            output_url = subprocess.check_output(["./testing", f"{url}"]) # add arguments later
-            output_url = output_url.decode("utf-8")
+            subprocess.run(["./testing", f"{url}"]) # add arguments later
+            scheme, host, port, path = None, None, None, None # read from random input generator
 
             subprocess.run(["gcov", "testing.c", "-m"])
 
-            read_gcov(output_url)
+            read_gcov(scheme, host, port, path)
         # deque.popleft() -> for url argument
     else:
         output_url = subprocess.check_output(["./testing"])
