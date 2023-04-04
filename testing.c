@@ -28,8 +28,12 @@ int main(){
     intsec = (int) seconds;
     srand (intsec);
 
-    scheme = (char *) malloc (10 * sizeof (char));
-    port = (char *) malloc (10 * sizeof (char));
+    url = (char *) malloc (1024 * sizeof (char));
+    scheme = (char *) malloc (100 * sizeof (char));
+    host = (char *) malloc (400 * sizeof (char));
+    port = (char *) malloc (100 * sizeof (char));
+    path = (char *) malloc (400 * sizeof (char));
+    
     
     parsed = (h2o_url_t *) malloc (sizeof (h2o_url_t));
     parsed -> scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
