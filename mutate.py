@@ -1,25 +1,31 @@
 import random
 
-def choose_mutation_location (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, scheme, host, port, path):
+def mutate (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, scheme, host, port, path):
 	choose_mutation_location = random.uniform (0, 100)
 
 	if choose_mutation_location < pbbt_scheme:
-		print ("Mutation: scheme")
+		#print ("Mutation: scheme")
+		location = "scheme"
 		scheme = mutate_scheme (scheme)
-		print ("Mutated scheme: " + scheme)
+		#print ("Mutated scheme: " + scheme)
 
 	elif choose_mutation_location >= pbbt_scheme and choose_mutation_location < (pbbt_scheme + pbbt_host):
-		print ("Mutation: host")
+		#print ("Mutation: host")
+		location = "host"
 		host = mutate_host (host)
-		print ("Mutated host: " + host)
+		#print ("Mutated host: " + host)
 	elif choose_mutation_location >= (pbbt_scheme + pbbt_host) and choose_mutation_location < (pbbt_scheme + pbbt_host + pbbt_port):
-		print ("Mutation: port")
+		#print ("Mutation: port")
+		location = "port"
 		port = mutate_port (port)
-		print ("Mutated port: " + port)
+		#print ("Mutated port: " + port)
 	else:
-		print ("Mutation: path")
+		#print ("Mutation: path")
+		location = "path"
 		path = mutate_path (path)
-		print ("Mutated path: " + path)
+		#print ("Mutated path: " + path)
+
+	return scheme, host, port, path, location
 
 
 
