@@ -2,7 +2,6 @@ import random
 
 def mutate (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, scheme, host, port, path):
 	choose_mutation_location = random.uniform (0, 100)
-
 	if choose_mutation_location < pbbt_scheme:
 		#print ("Mutation: scheme")
 		location = "scheme"
@@ -47,6 +46,7 @@ def mutate_scheme (scheme):
 	else:
 		list_idx = random.randint (0, 8)
 		scheme = scheme_list [list_idx]
+	return scheme
 
 def mutate_host (host):
 	choose_mutation = random.randint (0, 5)
@@ -62,6 +62,7 @@ def mutate_host (host):
 		host = swap_characters (host)
 	else:
 		host = bitflip_random_character (host)
+	return host
 
 def mutate_port (port):
 	choose_mutation = random.randint (0, 5)
@@ -77,6 +78,7 @@ def mutate_port (port):
 		port = swap_characters (port)
 	else:
 		port = bitflip_random_character (port)
+	return port
 
 def mutate_path (path):
 	choose_mutation = random.randint (0, 5)
@@ -92,6 +94,7 @@ def mutate_path (path):
 		path = swap_characters (path)
 	else:
 		path = bitflip_random_character (path)
+	return path
 
 def generate_random_character ():
 	asciicode = random.randint (32, 126)
@@ -180,10 +183,12 @@ def bitflip_random_character (target):
 	return target
 
 
-print ("1" + change_random_character ("google.com"))
+'''print ("1" + change_random_character ("google.com"))
 print ("2" + havoc_hp ("google.com"))
 print ("3" + havoc_sp("google.com"))
 print ("4" + insert_characters ("google.com"))
 print ("5" + delete_characters ("google.com"))
 print ("6" + swap_characters ("google.com"))
 print ("7" + bitflip_random_character ("google.com"))
+
+print (mutate (25, 25, 25, 25, "https://", "google.com", ":5300", "/watch?v=grtqJsO_hb0&t=7771s"))'''

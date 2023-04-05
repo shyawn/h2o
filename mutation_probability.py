@@ -62,3 +62,5 @@ def update_probability (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, location, 
 			pbbt_path *= ((100) / (100 - change))
 			
 	return pbbt_scheme, pbbt_host, pbbt_port, pbbt_path
+
+#print (update_probability (48, 32, 8, 12, "scheme", 1))
