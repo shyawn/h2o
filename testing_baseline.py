@@ -80,7 +80,6 @@ def read_gcov(scheme, host, port, path, location):
                 if coverage.isnumeric():
                     # Generate key for each iteration
                     key += coverage + ","
-
                 else:
                     key += "#" + ","
 

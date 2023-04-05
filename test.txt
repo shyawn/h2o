@@ -94,7 +94,7 @@
     #####:   90:        *host = h2o_iovec_init(token_start, token_end - token_start);
     #####:   91:        token_start = token_end + 1;
         -:   92:    } else {
-       14:   93:        for (token_end = token_start; !(token_end == end || *token_end == '/' || *token_end == ':'); ++token_end)
+        5:   93:        for (token_end = token_start; !(token_end == end || *token_end == '/' || *token_end == ':'); ++token_end)
         -:   94:            ;
         1:   95:        *host = h2o_iovec_init(token_start, token_end - token_start);
         1:   96:        token_start = token_end;
@@ -139,14 +139,14 @@
         1:  135:static const char *parse_scheme(const char *s, const char *end, const h2o_url_scheme_t **scheme)
         -:  136:{
         1:  137:    if (end - s >= 5 && memcmp(s, "http:", 5) == 0) {
-    #####:  138:        *scheme = &H2O_URL_SCHEME_HTTP;
-    #####:  139:        return s + 5;
-        1:  140:    } else if (end - s >= 6 && memcmp(s, "https:", 6) == 0) {
+        1:  138:        *scheme = &H2O_URL_SCHEME_HTTP;
+        1:  139:        return s + 5;
+    #####:  140:    } else if (end - s >= 6 && memcmp(s, "https:", 6) == 0) {
     #####:  141:        *scheme = &H2O_URL_SCHEME_HTTPS;
     #####:  142:        return s + 6;
-        1:  143:    } else if (end - s >= 7 && memcmp(s, "masque:", 7) == 0) {
-        1:  144:        *scheme = &H2O_URL_SCHEME_MASQUE;
-        1:  145:        return s + 7;
+    #####:  143:    } else if (end - s >= 7 && memcmp(s, "masque:", 7) == 0) {
+    #####:  144:        *scheme = &H2O_URL_SCHEME_MASQUE;
+    #####:  145:        return s + 7;
         -:  146:    }
     #####:  147:    return NULL;
         -:  148:}
