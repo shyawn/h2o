@@ -93,10 +93,12 @@ def generate_random_character ():
 
 def change_random_character (target):
 	if target == "":
-		target += inserted
+		return target
 	target_len = len (target)
 	idx = random.randint (0, target_len - 1)
-	target [idx] = generate_random_character ()
+	front = target [0:idx]
+	back = target [idx + 1: target_len]
+	target = front + generate_random_character () + back
 	return target
 
 def havoc_sp (target):
@@ -121,6 +123,7 @@ def havoc_hp (target):
 
 def insert_characters (target):
 	insert_len = random.randint (1, 5)
+	inserted = ""
 	for i in range (insert_len):
 		inserted += generate_random_character ()
 	if target == "":
@@ -129,7 +132,7 @@ def insert_characters (target):
 	idx_insert = random.randint (0, len(target))
 	front = target [:idx_insert]
 	if idx_insert != len(target):
-		back = [idx_insert:len(target)]
+		back = target[idx_insert:len(target)]
 		target = front + inserted + back
 	else:
 		target += inserted
@@ -152,20 +155,29 @@ def delete_characters (target):
 def swap_characters (target):
 	if target == "":
 		return target
-	idx = random.randint (0, len(target) - 1)
-	new_front = target[idx + 1]
-	new_back = target[idx]
-	target[idx] = new_front
-	target[idx + 1] = new_back
+	idx = random.randint (0, len(target) - 2)
+	new_chr = target[idx + 1]
+	new_chr2 = target[idx]
+	front = target [0:idx]
+	back = target [idx +2:len(target)]
+	target = front + new_chr + new_chr2 + back
 	return target
 
 def bitflip_random_character (target):
 	if target == "":
 		target += inserted
 	idx = random.randint(0, len(target) - 1)
-    c = target [idx]
-    bit = 1 << random.randint(0, 6)
-    new_c = chr(ord(c) ^ bit)
-    # print("Flipping", bit, "in", repr(c) + ", giving", repr(new_c))
-    target =  target[:idx] + new_c + target[idx + 1:]
-    return target
+	c = target [idx]
+	bit = 1 << random.randint(0, 6)
+	new_c = chr(ord(c) ^ bit)
+	target =  target[:idx] + new_c + target[idx + 1:]
+	return target
+
+
+print ("1" + change_random_character ("google.com"))
+print ("2" + havoc_hp ("google.com"))
+print ("3" + havoc_sp("google.com"))
+print ("4" + insert_characters ("google.com"))
+print ("5" + delete_characters ("google.com"))
+print ("6" + swap_characters ("google.com"))
+print ("7" + bitflip_random_character ("google.com"))
