@@ -19,28 +19,18 @@ const h2o_url_scheme_t H2O_URL_SCHEME_HTTPS = {{H2O_STRLIT("https")}, 443, 1};
 const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0 /* ??? masque might or might not be over TLS */};
 
 int main (int argc, char ** argv) {
-    char * url, * scheme, * host, * port, * path;
+    char * url;
     size_t url_len, returned_value;
-    h2o_url_t * parsed;
-
+    h2o_url_t parsed;
+    memset(&parsed, 0x55, sizeof(parsed));
     url = (char *) malloc (1024 * sizeof (char));
-    scheme = (char *) malloc (100 * sizeof (char));
-    host = (char *) malloc (400 * sizeof (char));
-    port = (char *) malloc (100 * sizeof (char));
-    path = (char *) malloc (400 * sizeof (char));
-    parsed = (h2o_url_t *) malloc (sizeof (h2o_url_t));
-    parsed -> scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
+    strcpy(url, argv[1]);
+    url_len = atoi(argv[2]);
+    printf("Input URL for C file is : %s, %ld\n", url, url_len);
 
-    strcat (url, scheme);
-    strcat (url, host);
-    strcat (url, port);
-    strcat (url, path);
+    returned_value = h2o_url_parse(url, url_len, &parsed);
 
-    url_len = strlen (scheme) + strlen (host) + strlen (port) + strlen (path);
-
-    returned_value = h2o_url_parse(url, url_len, parsed);
-
-    printf ("result: %d\n", returned_value);
+    printf ("result: %ld\n", returned_value);
 
     return 0;
 }
