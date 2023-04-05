@@ -1,10 +1,81 @@
+# Temporary func before merging with cbranch (Need to be remove after merging)
+
+def mutate (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, scheme, host, port, path):
+	pass
+
+def mutate_scheme (scheme):
+	pass
+
+def mutate_host (host):
+	pass
+
+def mutate_port (port):
+	pass
+
+def mutate_path (path):
+	pass
+
+def generate_random_character ():
+	pass
+
+def change_random_character (target):
+	pass
+
+def havoc_sp (target):
+	pass
+
+def havoc_hp (target):
+	pass
+
+def insert_characters (target):
+	pass
+
+def delete_characters (target):
+	pass
+
+def swap_characters (target):
+	pass
+
+def bitflip_random_character (target):
+	pass
+
+def update_probability(pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, location, incdec):
+    pass
+
+def new_scheme():
+    pass
+
+def new_host():
+    pass
+
+def new_port():
+    pass
+
+def new_path():
+    pass
+
+def get_random_character_host():
+    pass
+
+def get_random_small_alphabet():
+    pass
+
+def get_random_character_path():
+    pass
+
+# End of temp function
+
+
 import subprocess
 import sys
 import time
 # import matplotlib.pyplot as plt
 # use "pip install plotext" before running
+#from filename import *
 import plotext as plt
 from collections import deque
+
+ENERGY = 50
 
 if len(sys.argv) < 2:
     print("Please provide 1 argument (number of fuzz)")
@@ -23,18 +94,24 @@ coverage_dict = {}
 plot_duration = []
 number_of_interesting_input = []
 
+
 # Initialization of Seed
 seed = deque()
+for i in range(100):
+    scheme = new_scheme()
+    host = new_host()
+    port = new_port()
+    path = new_path()
+    seed.append((scheme, host, port, path, ENERGY))
+
 
 # Initialization of probability for scheme, host, port and path
 # Note: 0 -> scheme, 1 -> host, 2 -> port, 3 -> path
-p_map = {0: 25, 1: 25, 2: 25, 3: 25}
+p_map = {"scheme": 25, "host": 25, "port": 25, "path": 25}
 
 # Total seed
 # Note: Some of the seed might not be executed because of either time constraint or exception
 total_seed = set()
-
-ENERGY = 50
 
 # TODO: Complete the assign energy function
 def assign_energy(url):
@@ -44,7 +121,7 @@ def assign_energy(url):
 number_of_fuzz = int(sys.argv[1])
 
 # Helper functions
-def read_gcov(scheme, host, port, path):
+def read_gcov(scheme, host, port, path, location):
     # global coverage_dict, overall_coverage_dict, seed
     global coverage_dict, seed
     with open('testing.txt', 'w') as file1:
@@ -79,17 +156,31 @@ def read_gcov(scheme, host, port, path):
                         # overall_coverage_dict[int(line_number)] += int(coverage)
                 else:
                     key += "#" + ","
+
+        p_scheme = p_map["scheme"]
+        p_host = p_map["host"]
+        p_port = p_map["port"]
+        p_path= p_map["path"]
+
         # Add unique keys to coverage_dict
         if key not in coverage_dict:
             coverage_dict[key] = 0
             # store in seed if output is interesting
+            new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 0)
+
             output_url = scheme + host + port + path
             energy = assign_energy(output_url)
             seed.append((scheme, host, port, path, energy))
             total_seed.add(output_url)
+        else:
+            new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 1)
+
+        p_map["scheme"] = new_prob[0]
+        p_map["host"] = new_prob[1]
+        p_map["port"] = new_prob[2]
+        p_map["path"] = new_prob[3]
 
     file.close()
-
 
 # Main running code
 start_time = time.time()
@@ -101,24 +192,32 @@ for _ in range(number_of_fuzz):
     # Getting output from testing.c
     if seed:
         data = seed.popleft()
-        url = data[0]
-        energy = data[1]
+
+        scheme = data[0]
+        host = data[1]
+        port = data[2]
+        path = data[3]
+        energy = data[4]
+
+        p_scheme = p_map["scheme"]
+        p_host = p_map["host"]
+        p_port = p_map["port"]
+        p_path= p_map["path"]
+
         # Run testing for n number of times, where n is the assigned energy
         for i in range(energy):
-            subprocess.run(["./testing", f"{url}"]) # add arguments later
+            mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
+            new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
+            location = mutate_res[4]
+
+            subprocess.run(["./testing", f"{new_url}"]) # add arguments later
             scheme, host, port, path = None, None, None, None # read from random input generator
 
             subprocess.run(["gcov", "testing.c", "-m"])
 
-            read_gcov(scheme, host, port, path)
+            read_gcov(scheme, host, port, path, location)
         # deque.popleft() -> for url argument
-    else:
-        output_url = subprocess.check_output(["./testing"])
-        output_url = output_url.decode("utf-8")
-
-        subprocess.run(["gcov", "testing.c", "-m"])
-
-        read_gcov(output_url)
+    break
 
     # # Calculate time taken for each iteration
     # point_duration = time.time() - start_time
