@@ -92,6 +92,8 @@ def generate_random_character ():
 	return chr (asciicode)
 
 def change_random_character (target):
+	if target == "":
+		target += inserted
 	target_len = len (target)
 	idx = random.randint (0, target_len - 1)
 	target [idx] = generate_random_character ()
@@ -121,6 +123,9 @@ def insert_characters (target):
 	insert_len = random.randint (1, 5)
 	for i in range (insert_len):
 		inserted += generate_random_character ()
+	if target == "":
+		target += inserted
+		return target
 	idx_insert = random.randint (0, len(target))
 	front = target [:idx_insert]
 	if idx_insert != len(target):
@@ -131,6 +136,8 @@ def insert_characters (target):
 	return target
 
 def delete_characters (target):
+	if target == "":
+		return target
 	delete_len = random.randint (1, len(target))
 	delete_from = random.randint (0, len(target) - delete_len)
 	if delete_from != 0:
@@ -143,6 +150,8 @@ def delete_characters (target):
 	return target
 
 def swap_characters (target):
+	if target == "":
+		return target
 	idx = random.randint (0, len(target) - 1)
 	new_front = target[idx + 1]
 	new_back = target[idx]
@@ -151,4 +160,12 @@ def swap_characters (target):
 	return target
 
 def bitflip_random_character (target):
-	
+	if target == "":
+		target += inserted
+	idx = random.randint(0, len(target) - 1)
+    c = target [idx]
+    bit = 1 << random.randint(0, 6)
+    new_c = chr(ord(c) ^ bit)
+    # print("Flipping", bit, "in", repr(c) + ", giving", repr(new_c))
+    target =  target[:idx] + new_c + target[idx + 1:]
+    return target
