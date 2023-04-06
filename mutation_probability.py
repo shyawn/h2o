@@ -1,4 +1,4 @@
-import math
+import math, random
 
 def update_probability (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, location, incdec):
 	if incdec == 0:
@@ -60,7 +60,32 @@ def update_probability (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, location, 
 			pbbt_host *= ((100) / (100 - change))
 			pbbt_port *= ((100) / (100 - change))
 			pbbt_path *= ((100) / (100 - change))
-			
+	diff_100 = 100 - (pbbt_scheme + pbbt_host + pbbt_path + pbbt_port)
+	#print (diff_100)
+	adjust_location = random.randint (0, 3)
+	if adjust_location == 0:
+		#print ("scheme")
+		pbbt_scheme += diff_100
+	elif adjust_location == 1:
+		#print ("host")
+		pbbt_host += diff_100
+	elif adjust_location == 2:
+		#print ("port")
+		pbbt_port += diff_100
+	else:
+		#print ("path")
+		pbbt_path += diff_100
+	
 	return pbbt_scheme, pbbt_host, pbbt_port, pbbt_path
 
-#print (update_probability (48, 32, 8, 12, "scheme", 1))
+'''pbbt_scheme = 48
+pbbt_host = 32
+pbbt_port = 4
+pbbt_path = 16
+while (True):
+	result = update_probability (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, "scheme", 1)
+	pbbt_scheme = result[0]
+	pbbt_host = result[1]
+	pbbt_port = result[2]
+	pbbt_path = result[3]
+	print (str(result[0]), str(result[1]),str(result[2]),str(result[3]))'''
