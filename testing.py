@@ -218,14 +218,15 @@ try:
                 print (new_url)
                 print("compiled")
                 #new_url is mutated url, url_len is length of scheme, host, port
-                subprocess.run(["./test", f"{new_url}", f"{url_len}"])
+                
+                subprocess.run(["./test",str(new_url), str(url_len)])
                 if (end_time_checker()):
                     break
-                
+                output = ""
                 output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
-                print(str(output))
                 if (str(output).find(BUG_COMMAND) != -1):
                     Total_bugs += 1
+                    print("Bug Found")
                 print("runned")
                 print (location)
                 read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)

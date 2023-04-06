@@ -162,7 +162,7 @@ def delete_characters (target):
 	return target
 
 def swap_characters (target):
-	if target == "":
+	if len(target) == 0 or len(target) == 1:
 		return target
 	idx = random.randint (0, len(target) - 2)
 	new_chr = target[idx + 1]
@@ -173,8 +173,9 @@ def swap_characters (target):
 	return target
 
 def bitflip_random_character (target):
+	inserted = ""
 	if target == "":
-		target += inserted
+		return target
 	idx = random.randint(0, len(target) - 1)
 	c = target [idx]
 	bit = 1 << random.randint(0, 6)
