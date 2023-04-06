@@ -78,7 +78,7 @@ def update_probability (pbbt_scheme, pbbt_host, pbbt_port, pbbt_path, location, 
 	
 	return pbbt_scheme, pbbt_host, pbbt_port, pbbt_path
 
-pbbt_scheme = 48
+'''pbbt_scheme = 48
 pbbt_host = 32
 pbbt_port = 4
 pbbt_path = 16
@@ -88,4 +88,4 @@ while (True):
 	pbbt_host = result[1]
 	pbbt_port = result[2]
 	pbbt_path = result[3]
-	print (str(result[0]), str(result[1]),str(result[2]),str(result[3]))
+	print (str(result[0]), str(result[1]),str(result[2]),str(result[3]))'''
