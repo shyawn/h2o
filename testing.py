@@ -11,7 +11,7 @@ import os
 from collections import deque
 
 ENERGY = 50
-Test_Index = 5
+Test_Index = 40
 BUG_COMMAND = "test.gcda:stamp mismatch with notes file"
 nth_fuzz = 0
 
@@ -40,6 +40,7 @@ coverage_dict = {}
 plot_duration = []
 coverage_per_test = []
 number_of_tests = []
+tests_per_time = []
 time_per_time_index = []
 coverage_per_time = []
 bugs_per_time = []
@@ -75,7 +76,7 @@ def assign_energy(url):
 
 
 # Set time constant using (time_for_fuzz/600)
-time_interval = time_for_fuzz/5
+time_interval = time_for_fuzz/200
 
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
@@ -130,7 +131,7 @@ def read_gcov(scheme, host, port, path, location):
         p_map["port"] = new_prob[2]
         p_map["path"] = new_prob[3]
 
-    file.close()
+    file.close()    
 def end_time_checker():
     return (time.time() - start_time - time_for_generating_seeds) > time_for_fuzz
 
@@ -169,7 +170,7 @@ def write_csv():
         #firstly write down datas per time
         writer.writerow(["time", "coverage", "bug"])
         for i in range(len(time_per_time_index)):
-            writer.writerow([time_per_time_index[i], coverage_per_time[i], bugs_per_time[i]])
+            writer.writerow([time_per_time_index[i], coverage_per_time[i], bugs_per_time[i], tests_per_time[i]])
     with open(path + "/data_per_test" + str(nth_fuzz) + ".csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
@@ -212,7 +213,7 @@ try:
                 mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
                 new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
                 location = mutate_res[4]
-                url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2])
+                url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
                 print(url_len)
                 print (new_url)
                 print("compiled")
@@ -241,7 +242,7 @@ try:
                     time_per_time_index.append(time_index * time_interval)
                     coverage_per_time.append(len(total_seed))
                     bugs_per_time.append(Total_bugs)
-
+                    tests_per_time.append(number_of_iteration)
                 #append everything after time_info_gathering
                 plot_duration.append(point_duration)
 
