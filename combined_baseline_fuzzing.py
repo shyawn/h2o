@@ -14,7 +14,7 @@ def initial_read_csv():
     # open the file in the write mode
     # open the file in the write mode
     path = os.getcwd()
-    with open(path + "/data_per_time" + str(0) + ".csv", 'r') as f:
+    with open(path + "/baseline_data_per_time" + str(0) + ".csv", 'r') as f:
         reader = csv.reader(f)
         line_count = 0
         for row in reader:
@@ -26,7 +26,7 @@ def initial_read_csv():
 
             line_count += 1
             
-    with open(path + "/data_per_test" + str(0) + ".csv", 'r') as f:
+    with open(path + "/baseline_data_per_test" + str(0) + ".csv", 'r') as f:
         reader = csv.reader(f)
         line_count = 0
         for row in reader:
@@ -44,7 +44,7 @@ def read_csv(i, number_of_tests_min):
     # open the file in the write mode
     number_of_tests_min_return = 0
     path = os.getcwd()
-    with open(path + "/data_per_time" + str(i) + ".csv", 'r') as f:
+    with open(path + "/baseline_data_per_time" + str(i) + ".csv", 'r') as f:
         reader = csv.reader(f)
         line_count = 0
         for row in reader:
@@ -55,7 +55,7 @@ def read_csv(i, number_of_tests_min):
                 tests_per_time[line_count -1] += int(row[3])
             line_count += 1
 
-    with open(path + "/data_per_test" + str(i) + ".csv", 'r') as f:
+    with open(path + "/baseline_data_per_test" + str(i) + ".csv", 'r') as f:
         reader = csv.reader(f)
         line_count = 0
         for row in reader:
@@ -103,7 +103,7 @@ def write_csv():
     # open the file in the write mode
     # open the file in the write mode
     path = os.getcwd()
-    with open(path + "/final_result_data_per_time.csv", 'w') as f:
+    with open(path + "/baseline_final_result_data_per_time.csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
@@ -112,7 +112,7 @@ def write_csv():
         writer.writerow(["time", "coverage", "bug"])
         for i in range(len(time_per_time_index)):
             writer.writerow([time_per_time_index[i], coverage_per_time[i], tests_per_time[i]])
-    with open(path + "/final_result_data_per_tests.csv", 'w') as f:
+    with open(path + "/baseline_final_result_data_per_tests.csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
@@ -151,7 +151,7 @@ if not str(sys.argv[1]).isnumeric():
 time_for_fuzz = sys.argv[1]
 number_of_fuzzing = int(sys.argv[2])
 for i in range(number_of_fuzzing):
-    subprocess.run(["python3", "testing.py", str(time_for_fuzz), str(i)])
+    subprocess.run(["python3", "baseline_testing.py", str(time_for_fuzz), str(i)])
 
 # append values from 0th fuzz
 number_of_tests_min = initial_read_csv()

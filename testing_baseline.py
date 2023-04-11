@@ -35,7 +35,7 @@ nth_fuzz = int(sys.argv[2])
 print (nth_fuzz)
 
 # Initialization of global variables
-coverage_dict = {}
+coverage_dict = []
 # overall_coverage_dict = {}
 plot_duration = []
 coverage_per_test = []
@@ -51,6 +51,7 @@ number_of_iteration = 0
 time_index = 0
 time_for_generating_seeds = 0.0
 time_interval = 0.0
+number_of_coverage = 0
 
 # Initialization of Seed
 seed = deque()
@@ -76,7 +77,7 @@ def assign_energy(url):
 
 
 # Set time constant using (time_for_fuzz/600)
-time_interval = time_for_fuzz/200
+time_interval = time_for_fuzz/600
 
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
@@ -91,7 +92,13 @@ def read_gcov(scheme, host, port, path, location):
 
     with open ('test.txt', 'r') as file:
         key = ""
+        line_count = 0
+        is_interesting = False
         for line in file.readlines():
+            if (line_count < 38):
+                line_count += 1
+                continue
+            
             coverage_list = line.split(':')
             # Get number of times line is run
             coverage = coverage_list[0].strip()
@@ -102,19 +109,25 @@ def read_gcov(scheme, host, port, path, location):
                 # Check if coverage is not ##### or -
                 if coverage.isnumeric():
                     # Generate key for each iteration
-                    key += coverage + ","
-
+                    key = coverage
                 else:
-                    key += "#" + ","
+                    key = "#"
+            if key != "":
+                if(len(coverage_dict) <= int(line_number)):
+                    coverage_dict.append([key])
+                    is_interesting = True
+                elif key not in (coverage_dict[int(line_number)]):
+                    is_interesting = True
+                    coverage_dict[int(line_number)].append(key)
+                line_count += 1
 
         p_scheme = p_map["scheme"]
         p_host = p_map["host"]
         p_port = p_map["port"]
         p_path= p_map["path"]
-        print(key)
-        # Add unique keys to coverage_dict
-        if key not in coverage_dict:
-            coverage_dict[key] = 0
+        print(coverage_dict)
+        # do updated prob and assign energy when the mutated input is interesting
+        if is_interesting == True:
             # store in seed if output is interesting
             # new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 0)
 
@@ -124,7 +137,7 @@ def read_gcov(scheme, host, port, path, location):
             total_seed.add(output_url)
             print("interesting")
         # else:
-            # new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 1)
+        #     new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 1)
 
         # p_map["scheme"] = new_prob[0]
         # p_map["host"] = new_prob[1]
@@ -162,7 +175,7 @@ def write_csv():
     # open the file in the write mode
     # open the file in the write mode
     path = os.getcwd()
-    with open(path + "/data_per_time" + str(nth_fuzz) + ".csv", 'w') as f:
+    with open(path + "/baseline_data_per_time" + str(nth_fuzz) + ".csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
@@ -171,7 +184,7 @@ def write_csv():
         writer.writerow(["time", "coverage", "bug"])
         for i in range(len(time_per_time_index)):
             writer.writerow([time_per_time_index[i], coverage_per_time[i], bugs_per_time[i], tests_per_time[i]])
-    with open(path + "/data_per_test" + str(nth_fuzz) + ".csv", 'w') as f:
+    with open(path + "/baseline_data_per_test" + str(nth_fuzz) + ".csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
@@ -209,17 +222,20 @@ try:
             for i in range(energy):
                 number_of_iteration += 1
                 print("\nIteration: ", number_of_iteration)
+
                 subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
+                print("compiled")
                 mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
                 new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
                 location = mutate_res[4]
                 url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
                 print(url_len)
                 print (new_url)
-                print("compiled")
+                print (location)
                 #new_url is mutated url, url_len is length of scheme, host, port
                 
-                subprocess.run(["./test",str(new_url), str(url_len)])
+                subprocess.run(["./test", str(new_url), str(url_len)])
+                
                 if (end_time_checker()):
                     break
                 output = ""
@@ -228,7 +244,7 @@ try:
                     Total_bugs += 1
                     print("Bug Found")
                 print("runned")
-                print (location)
+
                 read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)
                 print (p_map["scheme"], p_map["host"], p_map["port"], p_map["path"])
 

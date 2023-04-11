@@ -49,7 +49,7 @@ def mutate_scheme (scheme):
 	return scheme
 
 def mutate_host (host):
-	choose_mutation = random.randint (0, 5)
+	choose_mutation = random.randint (5, 5)
 	if choose_mutation == 0:
 		host = change_random_character (host)
 	elif choose_mutation == 1:
@@ -180,6 +180,8 @@ def bitflip_random_character (target):
 	c = target [idx]
 	bit = 1 << random.randint(0, 6)
 	new_c = chr(ord(c) ^ bit)
+	if(new_c == '\0'):
+		return target
 	target =  target[:idx] + new_c + target[idx + 1:]
 	return target
 
