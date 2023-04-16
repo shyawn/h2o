@@ -35,7 +35,7 @@ nth_fuzz = int(sys.argv[2])
 print (nth_fuzz)
 
 # Initialization of global variables
-coverage_condition_list = []
+coverage_condition_dict = {}
 state_list = []
 plot_duration = []
 coverage_per_test = []
@@ -54,7 +54,7 @@ time_interval = 0.0
 number_of_coverage = 0
 
 # Initialization of Seed
-seed = deque()
+seed = []
 
 # Total seed
 # Note: Some of the seed might not be executed because of either time constraint or exception
@@ -68,7 +68,7 @@ p_map = {"scheme": 25, "host": 25, "port": 25, "path": 25}
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
     # global coverage_dict, overall_coverage_dict, seed
-    global coverage_condition_list, seed
+    global coverage_condition_dict, seed
     with open('test.txt', 'w') as file1:
         with open ('test.c.gcov', 'r') as file2:
             line = file2.read()
@@ -96,27 +96,28 @@ def read_gcov(scheme, host, port, path, location):
                 # Check if coverage is not ##### or -
                 if coverage.isnumeric():
                     # Generate key for each iteration
-                    key = coverage
+                    key += str(coverage) +", "
                     state_key += "1, "
                 elif coverage.find('*') != -1:
-                    key = coverage
+                    key += str(coverage) +"1*, "
                     state_key += "1*, "
                 else:
-                    key = '#'
+                    key += "#, "
                     state_key += "#, "
-            if key != "":
-                if(len(coverage_condition_list) <= int(line_number)):
-                    coverage_condition_list.append([key])
-                    is_interesting = True
-                elif key not in (coverage_condition_list[int(line_number)]):
-                    is_interesting = True
-                    coverage_condition_list[int(line_number)].append(key)
+            # if key != "":
+            #     if(len(coverage_condition_dict) <= int(line_number)):
+            #         coverage_condition_dict.append([key])
+            #         is_interesting = True
+            #     elif key not in (coverage_condition_dict[int(line_number)]):
+            #         is_interesting = True
+            #         coverage_condition_dict[int(line_number)].append(key)
                 line_count += 1
 
             # update which state this input goes through
             # states[0] = string data indicates state
             # states[1] = s(i), how many times state picked
             # states[2] = f(i), how many times state 
+
 
         state_index = 0
         Is_in_sates = False
@@ -126,30 +127,43 @@ def read_gcov(scheme, host, port, path, location):
                 Is_in_sates = True
                 break
             state_index += 1
-
         if Is_in_sates == False:
             state_list.append([state_key, 0, 0])
 
-                # store in seed if output is interesting
-        print("length of state list : "+ str(len(state_list)))
-        print("Seed numbers : " +  str(len(seed)) )
-        seed.append((scheme, host, port, path, state_index))
+            # store in seed if output is interesting
+            print("length of state list : "+ str(len(state_list)))
+            print("Seed numbers : " +  str(len(seed)) )
+
+        if key not in coverage_condition_dict:
+            coverage_condition_dict[key] = 0
+            is_interesting = True
+
+
         if is_interesting == True:
+
             print("interesting")
             output_url = scheme + host + port + path
+            seed.append([scheme, host, port, path, state_index])
             interesting_seed.add(output_url)
+
 
     
         # do updated prob when the mutated input is interesting
         if location != "":
+            # print(str(state_index))
+            # print(str(len(state_list)))
+            # print(state_list)
+            # print(state_key)
+
             p_scheme = p_map["scheme"]
             p_host = p_map["host"]
             p_port = p_map["port"]
             p_path= p_map["path"]
-
+            state_list[state_index][2] += 1
             if is_interesting == True:
                 # store in seed if output is interesting
                 new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 0)
+
             else:
                 new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 1)
             p_map["scheme"] = new_prob[0]
@@ -176,8 +190,8 @@ def assign_energy(state_index):
     else:
         result = 8 * pow(2, state_list[state_index][1])
         state_list[state_index][1] += 1
-        state_list[state_index][2] += result
-        print(result)
+        #state_list[state_index][2] += result
+        #print(result)
     return result
 
 
@@ -236,6 +250,9 @@ def write_csv():
     return
 # Main running code
 start_time = time.time()
+
+seed_index = 0
+seed_length = 0
 try:
     #infinite loop (loops break when time.time() - start_time > time_for_fuzz)
     while(1):
@@ -243,93 +260,98 @@ try:
         # subprocess.run(["./testing"])
         # Getting output from testing.c
         if seed:
+            while(seed_index < seed_length):
+                data = seed[seed_index]
 
-            data = seed.popleft()
+                scheme = data[0]
+                host = data[1]
+                port = data[2]
+                path = data[3]
+                state_num = data[4]
 
-            scheme = data[0]
-            host = data[1]
-            port = data[2]
-            path = data[3]
-            state_num = data[4]
+                # Assigning Energy before testing
 
-            p_scheme = p_map["scheme"]
-            p_host = p_map["host"]
-            p_port = p_map["port"]
-            p_path= p_map["path"]
+                energy = assign_energy(state_num)
+                print (scheme + host + port + path)
+                print ("energy :" + str(energy))
+                print (state_list[state_num])
+                # Run testing for n number of times, where n is the assigned energy
+                print("seed_index : " + str(seed_index))
+                for i in range(energy):
+                    
+                    p_scheme = p_map["scheme"]
+                    p_host = p_map["host"]
+                    p_port = p_map["port"]
+                    p_path= p_map["path"]
 
-            # Assigning Energy before testing
+                    number_of_iteration += 1
+                    num_iteration_assign_energy += 1
+                    print("\nIteration: ", number_of_iteration)
+                    subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
+                    print("compiled")
+                    mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
+                    new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
+                    location = mutate_res[4]
+                    url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
+                    print (url_len)
+                    print (new_url)
+                    print (location)
+                    #new_url is mutated url, url_len is length of scheme, host, port
+                    
+                    subprocess.run(["./test", str(new_url), str(url_len)])
+                    
+                    if (end_time_checker()):
+                        break
+                    output = ""
+                    output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
+                    if (str(output).find(BUG_COMMAND) != -1):
+                        Total_bugs += 1
+                        print("Bug Found")
+                    print("runned")
 
-            energy = assign_energy(state_num)
-            print (scheme + host + port + path)
-            print ("energy :" + str(energy))
-            print (state_list[state_num])
-            # Run testing for n number of times, where n is the assigned energy
-            for i in range(energy):
-                number_of_iteration += 1
-                num_iteration_assign_energy += 1
-                print("\nIteration: ", number_of_iteration)
-                subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
-                print("compiled")
-                mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
-                new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
-                location = mutate_res[4]
-                url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
-                print (url_len)
-                print (new_url)
-                print (location)
-                #new_url is mutated url, url_len is length of scheme, host, port
-                
-                subprocess.run(["./test", str(new_url), str(url_len)])
-                
-                if (end_time_checker()):
-                    break
-                output = ""
-                output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
-                if (str(output).find(BUG_COMMAND) != -1):
-                    Total_bugs += 1
-                    print("Bug Found")
-                print("runned")
+                    read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)
+                    print (p_map["scheme"], p_map["host"], p_map["port"], p_map["path"])
 
-                read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)
-                print (p_map["scheme"], p_map["host"], p_map["port"], p_map["path"])
+                    # Calculate time taken for each iteration
+                    point_duration = time.time() - start_time
+                    print ("number of interesting input : " + str(len(interesting_seed)))
+                    print(time.time() - start_time)
+                    if (end_time_checker()):
+                        break
+                    if (time_info_gathering(time_index)):
+                        time_index += 1
+                        time_per_time_index.append(time_index * time_interval)
+                        coverage_per_time.append(len(interesting_seed))
+                        bugs_per_time.append(Total_bugs)
+                        tests_per_time.append(number_of_iteration)
+                    #append everything after time_info_gathering
+                    plot_duration.append(point_duration)
 
-                # Calculate time taken for each iteration
-                point_duration = time.time() - start_time
-                print ("number of interesting input : " + str(len(interesting_seed)))
-                print(time.time() - start_time)
-                if (end_time_checker()):
-                    break
-                if (time_info_gathering(time_index)):
-                    time_index += 1
-                    time_per_time_index.append(time_index * time_interval)
-                    coverage_per_time.append(len(interesting_seed))
-                    bugs_per_time.append(Total_bugs)
-                    tests_per_time.append(number_of_iteration)
-                #append everything after time_info_gathering
-                plot_duration.append(point_duration)
-
-                number_of_tests.append(number_of_iteration)
-                coverage_per_test.append(len(interesting_seed))
-                #will be implemented later
-                bugs_per_test.append(Total_bugs)
-
+                    number_of_tests.append(number_of_iteration)
+                    coverage_per_test.append(len(interesting_seed))
+                    #will be implemented later
+                    bugs_per_test.append(Total_bugs)
+                seed_index += 1
+                seed_length = len(seed)
+            seed_index = 0
 
         else:
-            for i in range(100):
+            for i in range(2000):
                 number_of_iteration += 1
                 print("\nMaking Seed Iteration: ", number_of_iteration)
                 scheme = new_scheme()
                 host = new_host()
                 port = new_port()
                 path = new_path()
-                mutate_res = mutate(25, 25, 25, 25, scheme, host, port, path)
+                #mutate_res = mutate(25, 25, 25, 25, scheme, host, port, path)
 
-                new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
-                url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
+                #new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
+                new_url = scheme + host + port + path
+                url_len = len(new_url)
                 subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
                 subprocess.run(["./test", str(new_url), str(url_len)])
                 output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
-                read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], "")
+                read_gcov(scheme, host, port, path, "")
                 # Calculate time taken for each iteration
                 point_duration = time.time() - start_time
                 print ("number of interesting input : " + str(len(interesting_seed)))
@@ -352,6 +374,7 @@ try:
 
                 if (end_time_checker()):
                     break
+            seed_length = len(seed)
         if (end_time_checker()):
             break
 
