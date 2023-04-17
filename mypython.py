@@ -1,6 +1,6 @@
 state_list = ["C", "D", "A"]
 state_key ="A"
-state_index = 0;
+state_index = 0
 Is_in_sates = False
 for states in state_list:
     if state_key in states:

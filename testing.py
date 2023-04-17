@@ -2,6 +2,7 @@ import subprocess
 import sys
 import time
 import csv
+import math
 # use "pip install plotext" before running
 from mutate import *
 from mutation_probability import *
@@ -195,6 +196,21 @@ def assign_energy(state_index):
     return result
 
 
+def entropy(map, new_map):
+    '''
+    args:
+        map/new_map: dictionary containing values of all possibility
+    return:
+        boolean (if true meaning that the current input is making more variety)
+    '''
+    prev, new = 0, 0
+    for i in map:
+        prev += map[i] * math.log(map[i],2)
+    for i in new_map:
+        new += new_map[i] * math.log(new_map[i],2)
+    return new < prev
+
+
 # Set time constant using (time_for_fuzz/600)
 time_interval = time_for_fuzz/600
 
@@ -383,4 +399,3 @@ try:
 except KeyboardInterrupt:
     show_results()
     write_csv()
-    

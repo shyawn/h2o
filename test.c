@@ -110,7 +110,7 @@ const char *h2o_url_parse_hostport(const char *s, size_t len, h2o_iovec_t *host,
             return NULL;
         *port = (uint16_t)p;
         token_start = token_end;
-    }
+    } 
 
     return token_start;
 }
