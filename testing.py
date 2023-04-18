@@ -4,8 +4,8 @@ import time
 import csv
 import math
 # use "pip install plotext" before running
-from mutate_dic import *
-from mutation_probability_dic import *
+from mutate import *
+from mutation_probability import *
 from generate_input import *
 import plotext as plt
 import os

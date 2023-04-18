@@ -1,159 +1,67 @@
 import random
 
-def mutate (pbbt_scheme0, pbbt_scheme1, pbbt_scheme2, pbbt_scheme3, pbbt_scheme4, pbbt_scheme5, pbbt_scheme6, pbbt_host0, pbbt_host1, pbbt_host2, pbbt_host3, pbbt_host4, pbbt_host5, pbbt_port0, pbbt_port1, pbbt_port2, pbbt_port3, pbbt_port4, pbbt_port5, pbbt_path0, pbbt_path1, pbbt_path2, pbbt_path3, pbbt_path4, pbbt_path5, scheme, host, port, path):
+def mutate (location_operator_dic, scheme, host, port, path):
 	choose_mutation_location_operator = random.uniform (0, 100)
 	print (choose_mutation_location_operator)
-	boundary0 = pbbt_scheme0
-	boundary1 = pbbt_scheme0 + pbbt_scheme1
-	boundary2 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2
-	boundary3 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3
-	boundary4 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4
-	boundary5 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5
-	boundary6 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6
-	boundary7 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0
-	boundary8 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1
-	boundary9 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2
-	boundary10 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3
-	boundary11 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4
-	boundary12 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5
-	boundary13 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0
-	boundary14 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1
-	boundary15 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2
-	boundary16 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3
-	boundary17 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4
-	boundary18 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5
-	boundary19 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0
-	boundary20 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0 + pbbt_path1
-	boundary21 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0 + pbbt_path1 + pbbt_path2
-	boundary22 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0 + pbbt_path1 + pbbt_path2 + pbbt_path3
-	boundary23 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0 + pbbt_path1 + pbbt_path2 + pbbt_path3 + pbbt_path4
-	boundary24 = pbbt_scheme0 + pbbt_scheme1 + pbbt_scheme2 + pbbt_scheme3 + pbbt_scheme4 + pbbt_scheme5 + pbbt_scheme6 + pbbt_host0 + pbbt_host1 + pbbt_host2 + pbbt_host3 + pbbt_host4 + pbbt_host5 + pbbt_port0 + pbbt_port1 + pbbt_port2 + pbbt_port3 + pbbt_port4 + pbbt_port5 + pbbt_path0 + pbbt_path1 + pbbt_path2 + pbbt_path3 + pbbt_path4 + pbbt_path5
+	
+	temp_sum_ppbt = 0
+	for loc_op in location_operator_dic:
+		temp_sum_ppbt += location_operator_dic[loc_op]
+		if choose_mutation_location_operator < temp_sum_ppbt:
+			location_operator = loc_op
+			break
+	print (location_operator)
 
-	if choose_mutation_location_operator < boundary0:
-		#print ("Mutation: scheme")
-		location_operator = "scheme0"
+	if location_operator == "pbbt_scheme0":
 		scheme = change_random_character (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary0 and choose_mutation_location_operator < boundary1:
-		#print ("Mutation: scheme")
-		location_operator = "scheme1"
+	elif location_operator == "pbbt_scheme1":
 		scheme = havoc_sp (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary1 and choose_mutation_location_operator < boundary2:
-		#print ("Mutation: scheme")
-		location_operator = "scheme2"
+	elif location_operator == "pbbt_scheme2":
 		scheme = insert_characters (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary2 and choose_mutation_location_operator < boundary3:
-		#print ("Mutation: scheme")
-		location_operator = "scheme3"
+	elif location_operator == "pbbt_scheme3":
 		scheme = delete_characters (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary3 and choose_mutation_location_operator < boundary4:
-		#print ("Mutation: scheme")
-		location_operator = "scheme4"
+	elif location_operator == "pbbt_scheme4":
 		scheme = swap_characters (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary4 and choose_mutation_location_operator < boundary5:
-		#print ("Mutation: scheme")
-		location_operator = "scheme5"
+	elif location_operator == "pbbt_scheme5":
 		scheme = bitflip_random_character (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary5 and choose_mutation_location_operator < boundary6:
-		#print ("Mutation: scheme")
-		location_operator = "scheme6"
+	elif location_operator == "pbbt_scheme6":
 		scheme = change_scheme (scheme)
-		#print ("Mutated scheme: " + scheme)
-	elif choose_mutation_location_operator >= boundary6 and choose_mutation_location_operator < boundary7:
-		#print ("Mutation: host")
-		location_operator = "host0"
+	elif location_operator == "pbbt_host0":
 		host = change_random_character (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary7 and choose_mutation_location_operator < boundary8:
-		#print ("Mutation: host")
-		location_operator = "host1"
+	elif location_operator == "pbbt_host1":
 		host = havoc_hp (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary8 and choose_mutation_location_operator < boundary9:
-		#print ("Mutation: host")
-		location_operator = "host2"
+	elif location_operator == "pbbt_host2":
 		host = insert_characters (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary9 and choose_mutation_location_operator < boundary10:
-		#print ("Mutation: host")
-		location_operator = "host3"
+	elif location_operator == "host3":
 		host = delete_characters (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary10 and choose_mutation_location_operator < boundary11:
-		#print ("Mutation: host")
-		location_operator = "host4"
+	elif location_operator == "pbbt_host4":
 		host = swap_characters (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary11 and choose_mutation_location_operator < boundary12:
-		#print ("Mutation: host")
-		location_operator = "host5"
+	elif location_operator == "pbbt_host5":
 		host = bitflip_random_character (host)
-		#print ("Mutated host: " + host)
-	elif choose_mutation_location_operator >= boundary12 and choose_mutation_location_operator < boundary13:
-		#print ("Mutation: port")
-		location_operator = "port0"
+	elif location_operator == "pbbt_port0":
 		port = change_random_character (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary13 and choose_mutation_location_operator < boundary14:
-		#print ("Mutation: port")
-		location_operator = "port1"
+	elif location_operator == "pbbt_port1":
 		port = havoc_sp (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary14 and choose_mutation_location_operator < boundary15:
-		#print ("Mutation: port")
-		location_operator = "port2"
+	elif location_operator == "pbbt_port2":
 		port = insert_characters (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary15 and choose_mutation_location_operator < boundary16:
-		#print ("Mutation: port")
-		location_operator = "port3"
+	elif location_operator == "pbbt_port3":
 		port = delete_characters (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary16 and choose_mutation_location_operator < boundary17:
-		#print ("Mutation: port")
-		location_operator = "port4"
+	elif location_operator == "pbbt_port4":
 		port = swap_characters (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary17 and choose_mutation_location_operator < boundary18:
-		#print ("Mutation: port")
-		location_operator = "port5"
+	elif location_operator == "pbbt_port5":
 		port = bitflip_random_character (port)
-		#print ("Mutated port: " + port)
-	elif choose_mutation_location_operator >= boundary18 and choose_mutation_location_operator < boundary19:
-		#print ("Mutation: path")
-		location_operator = "path0"
+	elif location_operator == "pbbt_path0":
 		path = change_random_character (path)
-		#print ("Mutated path: " + path)
-	elif choose_mutation_location_operator >= boundary19 and choose_mutation_location_operator < boundary20:
-		#print ("Mutation: path")
-		location_operator = "path1"
+	elif location_operator == "pbbt_path1":
 		path = havoc_hp (path)
-		#print ("Mutated path: " + path)
-	elif choose_mutation_location_operator >= boundary20 and choose_mutation_location_operator < boundary21:
-		#print ("Mutation: path")
-		location_operator = "path2"
+	elif location_operator == "pbbt_path2":
 		path = insert_characters (path)
-		#print ("Mutated path: " + path)
-	elif choose_mutation_location_operator >= boundary21 and choose_mutation_location_operator < boundary22:
-		#print ("Mutation: path")
-		location_operator = "path3"
+	elif location_operator == "pbbt_path3":
 		path = delete_characters (path)
-		#print ("Mutated path: " + path)
-	elif choose_mutation_location_operator >= boundary22 and choose_mutation_location_operator < boundary23:
-		#print ("Mutation: path")
-		location_operator = "path4"
+	elif location_operator == "pbbt_path4":
 		path = swap_characters (path)
-		#print ("Mutated path: " + path)
 	else:
-		#print ("Mutation: path")
-		location_operator = "path5"
 		path = bitflip_random_character (path)
-		#print ("Mutated path: " + path)
 
 	return scheme, host, port, path, location_operator
 
@@ -330,5 +238,5 @@ print ("6" + swap_characters ("google.com"))
 print ("7" + bitflip_random_character ("google.com"))
 
 print (mutate (25, 25, 25, 25, "https://", "google.com", ":5300", "/watch?v=grtqJsO_hb0&t=7771s"))'''
-
-print (mutate (4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, "https://", "google.com", ":8080", "/watch?v=grtqJsO_hb0&t=7771s"))
+# location_operator_dic = {"pbbt_scheme0" : 4, "pbbt_scheme1" : 4, "pbbt_scheme2" : 4, "pbbt_scheme3" : 4, "pbbt_scheme4" : 4, "pbbt_scheme5" : 4, "pbbt_scheme6" : 4, "pbbt_host0" : 4, "pbbt_host1" : 4, "pbbt_host2" : 4, "pbbt_host3" : 4, "pbbt_host4" : 4, "pbbt_host5" : 4, "pbbt_port0" : 4, "pbbt_port1" : 4, "pbbt_port2" : 4, "pbbt_port3" : 4, "pbbt_port4" : 4, "pbbt_port5" : 4, "pbbt_path0" : 4, "pbbt_path1" : 4, "pbbt_path2" : 4, "pbbt_path3" : 4, "pbbt_path4" : 4, "pbbt_path5" : 4}
+# print (mutate (location_operator_dic, "https://", "google.com", ":8080", "/watch?v=grtqJsO_hb0&t=7771s"))
