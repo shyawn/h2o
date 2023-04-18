@@ -14,7 +14,7 @@ def mutate (location_operator_dic, scheme, host, port, path):
 
 	if location_operator == "pbbt_scheme0":
 		scheme = change_random_character (scheme)
-	elif location_operator == "pbbt_scheme0":
+	elif location_operator == "pbbt_scheme1":
 		scheme = havoc_sp (scheme)
 	elif location_operator == "pbbt_scheme2":
 		scheme = insert_characters (scheme)

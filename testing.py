@@ -65,8 +65,12 @@ interesting_seed = set()
 # Initialization of probability for scheme, host, port and path
 # Note: 0 -> scheme, 1 -> host, 2 -> port, 3 -> path
 p_map = {}
-for i in range(25):
-    p_map[i] = 4
+key_list = ["pbbt_scheme0","pbbt_scheme1","pbbt_scheme2","pbbt_scheme3","pbbt_scheme4","pbbt_scheme5",
+"pbbt_scheme6","pbbt_host0","pbbt_host1","pbbt_host2","host3","pbbt_host4","pbbt_host5","pbbt_port0","pbbt_port1","pbbt_port2","pbbt_port3","pbbt_port4","pbbt_port5","pbbt_path0",
+"pbbt_path1","pbbt_path2","pbbt_path3","pbbt_path4"]
+
+for i,j in enumerate(key_list):
+    p_map[j] = 4
 
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
