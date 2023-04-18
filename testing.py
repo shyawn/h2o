@@ -4,8 +4,8 @@ import time
 import csv
 import math
 # use "pip install plotext" before running
-from mutate import *
-from mutation_probability import *
+from mutate_dic import *
+from mutation_probability_dic import *
 from generate_input import *
 import plotext as plt
 import os
@@ -64,12 +64,14 @@ interesting_seed = set()
 
 # Initialization of probability for scheme, host, port and path
 # Note: 0 -> scheme, 1 -> host, 2 -> port, 3 -> path
-p_map = {"scheme": 25, "host": 25, "port": 25, "path": 25}
+p_map = {}
+for i in range(25):
+    p_map[i] = 4
 
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
     # global coverage_dict, overall_coverage_dict, seed
-    global coverage_condition_dict, seed
+    global coverage_condition_dict, seed, p_map, interesting_seed
     with open('test.txt', 'w') as file1:
         with open ('test.c.gcov', 'r') as file2:
             line = file2.read()
@@ -156,21 +158,12 @@ def read_gcov(scheme, host, port, path, location):
             # print(state_list)
             # print(state_key)
 
-            p_scheme = p_map["scheme"]
-            p_host = p_map["host"]
-            p_port = p_map["port"]
-            p_path= p_map["path"]
             state_list[state_index][2] += 1
             if is_interesting == True:
                 # store in seed if output is interesting
-                new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 0)
-
+                p_map = update_probability(p_map, location, 0)
             else:
-                new_prob = update_probability(p_scheme, p_host, p_port, p_path, location, 1)
-            p_map["scheme"] = new_prob[0]
-            p_map["host"] = new_prob[1]
-            p_map["port"] = new_prob[2]
-            p_map["path"] = new_prob[3]
+                p_map = update_probability(p_map, location, 1)
 
     file.close()    
 
@@ -294,18 +287,12 @@ try:
                 # Run testing for n number of times, where n is the assigned energy
                 print("seed_index : " + str(seed_index))
                 for i in range(energy):
-                    
-                    p_scheme = p_map["scheme"]
-                    p_host = p_map["host"]
-                    p_port = p_map["port"]
-                    p_path= p_map["path"]
-
                     number_of_iteration += 1
                     num_iteration_assign_energy += 1
                     print("\nIteration: ", number_of_iteration)
                     subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
                     print("compiled")
-                    mutate_res = mutate(p_scheme, p_host, p_port, p_path, scheme, host, port, path)
+                    mutate_res = mutate(p_map, scheme, host, port, path)
                     new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
                     location = mutate_res[4]
                     url_len = len(mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3])
@@ -326,7 +313,7 @@ try:
                     print("runned")
 
                     read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)
-                    print (p_map["scheme"], p_map["host"], p_map["port"], p_map["path"])
+                    #print (p_map["scheme"], p_map["host"], p_map["port"], p_map["path"])
 
                     # Calculate time taken for each iteration
                     point_duration = time.time() - start_time
@@ -352,7 +339,7 @@ try:
             seed_index = 0
 
         else:
-            for i in range(2000):
+            for i in range(10):
                 number_of_iteration += 1
                 print("\nMaking Seed Iteration: ", number_of_iteration)
                 scheme = new_scheme()
