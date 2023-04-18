@@ -1,16 +1,14 @@
 import math, random
 
-def update_probability (location_operator_dic, location_operator, incdec):
+def update_probability(location_operator_dic, location_operator, incdec):
 	if incdec == 0:
-		change = math.log10 (101 - location_operator_dic.get(location_operator))
-		print (change)
+		change = math.log10(101 - location_operator_dic.get(location_operator))
 		location_operator_dic[location_operator] += change
 		for loc_op in location_operator_dic:
 			location_operator_dic [loc_op] *= ((100) / (100 + change))
 
 	else:
-		change = math.log10 (location_update_dic.get(location_operator) + 1)
-		print (change)
+		change = math.log10(location_operator_dic.get(location_operator) + 1)
 		location_operator_dic[location_operator] -= change
 		for loc_op in location_operator_dic:
 			location_operator_dic [loc_op] *= ((100) / (100 - change))
@@ -21,7 +19,6 @@ def update_probability (location_operator_dic, location_operator, incdec):
 	diff_100 = 100 - sum_pbbt
 	adjust_location_operator = random.choice (list (location_operator_dic.keys()))
 	print (adjust_location_operator)
-	#print (diff_100)
 	location_operator_dic[adjust_location_operator] += diff_100
 	
 	return location_operator_dic

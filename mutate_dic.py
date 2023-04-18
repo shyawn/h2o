@@ -238,5 +238,5 @@ print ("6" + swap_characters ("google.com"))
 print ("7" + bitflip_random_character ("google.com"))
 
 print (mutate (25, 25, 25, 25, "https://", "google.com", ":5300", "/watch?v=grtqJsO_hb0&t=7771s"))'''
-location_operator_dic = {"pbbt_scheme0" : 4, "pbbt_scheme1" : 4, "pbbt_scheme2" : 4, "pbbt_scheme3" : 4, "pbbt_scheme4" : 4, "pbbt_scheme5" : 4, "pbbt_scheme6" : 4, "pbbt_host0" : 4, "pbbt_host1" : 4, "pbbt_host2" : 4, "pbbt_host3" : 4, "pbbt_host4" : 4, "pbbt_host5" : 4, "pbbt_port0" : 4, "pbbt_port1" : 4, "pbbt_port2" : 4, "pbbt_port3" : 4, "pbbt_port4" : 4, "pbbt_port5" : 4, "pbbt_path0" : 4, "pbbt_path1" : 4, "pbbt_path2" : 4, "pbbt_path3" : 4, "pbbt_path4" : 4, "pbbt_path5" : 4}
-print (mutate (location_operator_dic, "https://", "google.com", ":8080", "/watch?v=grtqJsO_hb0&t=7771s"))
+# location_operator_dic = {"pbbt_scheme0" : 4, "pbbt_scheme1" : 4, "pbbt_scheme2" : 4, "pbbt_scheme3" : 4, "pbbt_scheme4" : 4, "pbbt_scheme5" : 4, "pbbt_scheme6" : 4, "pbbt_host0" : 4, "pbbt_host1" : 4, "pbbt_host2" : 4, "pbbt_host3" : 4, "pbbt_host4" : 4, "pbbt_host5" : 4, "pbbt_port0" : 4, "pbbt_port1" : 4, "pbbt_port2" : 4, "pbbt_port3" : 4, "pbbt_port4" : 4, "pbbt_port5" : 4, "pbbt_path0" : 4, "pbbt_path1" : 4, "pbbt_path2" : 4, "pbbt_path3" : 4, "pbbt_path4" : 4, "pbbt_path5" : 4}
+# print (mutate (location_operator_dic, "https://", "google.com", ":8080", "/watch?v=grtqJsO_hb0&t=7771s"))
