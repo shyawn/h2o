@@ -11,17 +11,13 @@ import plotext as plt
 import os
 from collections import deque
 
-ENERGY = 50
-Test_Index = 40
-BUG_COMMAND = "test.gcda:stamp mismatch with notes file"
-nth_fuzz = 0
+#Check argumetns
 
 if len(sys.argv) < 3:
     print("Please provide 2 argument (time for the fuzz, order of the fuzz)")
     sys.exit()
 
 elif len(sys.argv) > 3:
-    # Set number of iterations from cmd line
     print("Too much argument is provided")
     sys.exit()
 
@@ -33,7 +29,6 @@ if not str(sys.argv[1]).isnumeric():
 time_for_fuzz = float(sys.argv[1])
 # Set number of iterations from cmd line
 nth_fuzz = int(sys.argv[2])
-print (nth_fuzz)
 
 # Initialization of global variables
 coverage_condition_dict = {}
@@ -46,6 +41,8 @@ time_per_time_index = []
 coverage_per_time = []
 bugs_per_time = []
 bugs_per_test = []
+unique_bugs_per_time = []
+unique_bugs_per_tests = []
 Total_bugs = 0
 
 number_of_iteration = 0
@@ -56,18 +53,20 @@ number_of_coverage = 0
 
 # Initialization of Seed
 seed = []
+bug_inputs = []
+unique_bug_returncodes = []
 
-# Total seed
-# Note: Some of the seed might not be executed because of either time constraint or exception
-interesting_seed = set()
+Test_Index = 40
+BUG_COMMAND = "returncode=0"
+
 
 
 # Initialization of probability for scheme, host, port and path
-# Note: 0 -> scheme, 1 -> host, 2 -> port, 3 -> path
+# Note: 0 -> scheme, 1 -> 4host, 2 -> port, 3 -> path
 p_map = {}
 key_list = ["pbbt_scheme0","pbbt_scheme1","pbbt_scheme2","pbbt_scheme3","pbbt_scheme4","pbbt_scheme5",
-"pbbt_scheme6","pbbt_host0","pbbt_host1","pbbt_host2","host3","pbbt_host4","pbbt_host5","pbbt_port0","pbbt_port1","pbbt_port2","pbbt_port3","pbbt_port4","pbbt_port5","pbbt_path0",
-"pbbt_path1","pbbt_path2","pbbt_path3","pbbt_path4"]
+"pbbt_scheme6","pbbt_host0","pbbt_host1","pbbt_host2","pbbt_host3","pbbt_host4","pbbt_host5","pbbt_port0","pbbt_port1","pbbt_port2","pbbt_port3","pbbt_port4","pbbt_port5","pbbt_path0",
+"pbbt_path1","pbbt_path2","pbbt_path3","pbbt_path4", "pbbt_path5"]
 
 for i,j in enumerate(key_list):
     p_map[j] = 4
@@ -75,15 +74,15 @@ for i,j in enumerate(key_list):
 # Helper functions
 def read_gcov(scheme, host, port, path, location):
     # global coverage_dict, overall_coverage_dict, seed
-    global coverage_condition_dict, seed, p_map, interesting_seed
-    with open('test.txt', 'w') as file1:
-        with open ('test.c.gcov', 'r') as file2:
+    global coverage_condition_dict, seed, p_map
+    with open('testing.txt', 'w') as file1:
+        with open ('testing.c.gcov', 'r') as file2:
             line = file2.read()
             file1.write(line)
     file2.close()
     file1.close()
 
-    with open ('test.c.gcov', 'r') as file:
+    with open ('testing.c.gcov', 'r') as file:
         key = ""
         state_key = ""
         line_count = 0
@@ -106,7 +105,7 @@ def read_gcov(scheme, host, port, path, location):
                     key += str(coverage) +", "
                     state_key += "1, "
                 elif coverage.find('*') != -1:
-                    key += str(coverage) +"1*, "
+                    key += str(coverage) +", "
                     state_key += "1*, "
                 else:
                     key += "#, "
@@ -151,7 +150,6 @@ def read_gcov(scheme, host, port, path, location):
             print("interesting")
             output_url = scheme + host + port + path
             seed.append([scheme, host, port, path, state_index])
-            interesting_seed.add(output_url)
 
 
     
@@ -171,7 +169,6 @@ def read_gcov(scheme, host, port, path, location):
 
     file.close()    
 
-# TODO: Complete the assign energy function
 def assign_energy(state_index):
     result = 0
     print("state_index : " + str(state_index))
@@ -186,7 +183,9 @@ def assign_energy(state_index):
         return result
     
     else:
-        result = 8 * pow(2, state_list[state_index][1])
+        result = pow(2, state_list[state_index][1])
+        if (result > 15000000):
+            result = 15000000
         state_list[state_index][1] += 1
         #state_list[state_index][2] += result
         #print(result)
@@ -224,7 +223,7 @@ def show_results():
     print("Total time taken: ", total_duration)
 
     #show total seed
-    print(interesting_seed)
+    print(seed)
     # Plotting total number of inputs vs time
     plt.plot(plot_duration, number_of_tests)
     plt.xlabel('time')
@@ -242,24 +241,38 @@ def write_csv():
     # open the file in the write mode
     # open the file in the write mode
     path = os.getcwd()
+    print ("nth fuzz" + str(nth_fuzz))
     with open(path + "/data_per_time" + str(nth_fuzz) + ".csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
         # write a row to the csv file
         #firstly write down datas per time
-        writer.writerow(["time", "coverage", "bug"])
+        writer.writerow(["time", "coverage", "bug", "tests", "unique bugs"])
         for i in range(len(time_per_time_index)):
-            writer.writerow([time_per_time_index[i], coverage_per_time[i], bugs_per_time[i], tests_per_time[i]])
+            writer.writerow([time_per_time_index[i], coverage_per_time[i], bugs_per_time[i], tests_per_time[i], unique_bugs_per_time[i]])
     with open(path + "/data_per_test" + str(nth_fuzz) + ".csv", 'w') as f:
     # create the csv writer
         writer = csv.writer(f)
 
         # write a row to the csv file
         #firstly write down datas per time
-        writer.writerow(["test", "coverage", "bug"])
+        writer.writerow(["test", "coverage", "bug", "unique bugs"])
         for i in range((len(number_of_tests)//Test_Index)):
-            writer.writerow([number_of_tests[i * Test_Index ], coverage_per_test[i * Test_Index], bugs_per_test[i * Test_Index]])
+            writer.writerow([number_of_tests[i * Test_Index ], coverage_per_test[i * Test_Index], bugs_per_test[i * Test_Index], unique_bugs_per_tests[i * Test_Index]])
+            
+    with open(path + "/bugs" + str(nth_fuzz) + ".csv", 'w') as f:
+    # create the csv writer
+        writer = csv.writer(f)
+
+        # write a row to the csv file
+        #firstly write down datas per time
+        writer.writerow(["unique codes"])
+        for i in range(len(unique_bug_returncodes)):
+            writer.writerow([unique_bug_returncodes[i]])
+        writer.writerow(["bugs"])
+        for i in range(len(bug_inputs)):
+            writer.writerow([bug_inputs[i][0], bug_inputs[i][1]])
     return
 # Main running code
 start_time = time.time()
@@ -282,6 +295,7 @@ try:
                 path = data[3]
                 state_num = data[4]
 
+
                 # Assigning Energy before testing
 
                 energy = assign_energy(state_num)
@@ -294,7 +308,7 @@ try:
                     number_of_iteration += 1
                     num_iteration_assign_energy += 1
                     print("\nIteration: ", number_of_iteration)
-                    subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
+                    subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
                     print("compiled")
                     mutate_res = mutate(p_map, scheme, host, port, path)
                     new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
@@ -304,16 +318,23 @@ try:
                     print (new_url)
                     print (location)
                     #new_url is mutated url, url_len is length of scheme, host, port
-                    
-                    subprocess.run(["./test", str(new_url), str(url_len)])
-                    
+                    output = ""
+                    output = subprocess.run(["./testing", str(new_url), str(url_len)])
+                    print ("cmd out " +  str(output))
+                    if (str(output).find(BUG_COMMAND) == -1):
+                        Total_bugs += 1
+                        x = str(output).split("returncode=")
+                        retruncode = x[1][:-1]
+                        print("bug returncode = " + str(retruncode))
+                        print(type(retruncode))
+                        if retruncode not in unique_bug_returncodes:
+                            unique_bug_returncodes.append(retruncode)
+                        bug_inputs.append([new_url, retruncode])
+                        print("Bug Found")
                     if (end_time_checker()):
                         break
-                    output = ""
-                    output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
-                    if (str(output).find(BUG_COMMAND) != -1):
-                        Total_bugs += 1
-                        print("Bug Found")
+                    subprocess.run(["gcov", "testing.c", "-m"], capture_output=True)
+  
                     print("runned")
 
                     read_gcov(mutate_res[0], mutate_res[1], mutate_res[2], mutate_res[3], location)
@@ -321,29 +342,35 @@ try:
 
                     # Calculate time taken for each iteration
                     point_duration = time.time() - start_time
-                    print ("number of interesting input : " + str(len(interesting_seed)))
+                    for i,j in p_map.items():
+                        print("Key: " + str(i) + " Value : " +str(j))
+                    print ("number of interesting input : " + str(len(seed)))
                     print(time.time() - start_time)
                     if (end_time_checker()):
                         break
                     if (time_info_gathering(time_index)):
                         time_index += 1
                         time_per_time_index.append(time_index * time_interval)
-                        coverage_per_time.append(len(interesting_seed))
+                        coverage_per_time.append(len(seed))
                         bugs_per_time.append(Total_bugs)
                         tests_per_time.append(number_of_iteration)
+                        unique_bugs_per_time.append(len(unique_bug_returncodes))
                     #append everything after time_info_gathering
                     plot_duration.append(point_duration)
 
                     number_of_tests.append(number_of_iteration)
-                    coverage_per_test.append(len(interesting_seed))
+                    coverage_per_test.append(len(seed))
                     #will be implemented later
                     bugs_per_test.append(Total_bugs)
+                    unique_bugs_per_tests.append(len(unique_bug_returncodes))
                 seed_index += 1
                 seed_length = len(seed)
+                if (end_time_checker()):
+                    break
             seed_index = 0
 
         else:
-            for i in range(10):
+            for i in range(1200):
                 number_of_iteration += 1
                 print("\nMaking Seed Iteration: ", number_of_iteration)
                 scheme = new_scheme()
@@ -355,29 +382,31 @@ try:
                 #new_url = mutate_res[0] + mutate_res[1] + mutate_res[2] + mutate_res[3]
                 new_url = scheme + host + port + path
                 url_len = len(new_url)
-                subprocess.run(["gcc", "-o", "test", "--coverage", "test.c"])
-                subprocess.run(["./test", str(new_url), str(url_len)])
-                output = subprocess.run(["gcov", "test.c", "-m"], capture_output=True)
+                subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
+                subprocess.run(["./testing", str(new_url), str(url_len)])
+                output = subprocess.run(["gcov", "testing.c", "-m"], capture_output=True)
                 read_gcov(scheme, host, port, path, "")
                 # Calculate time taken for each iteration
                 point_duration = time.time() - start_time
-                print ("number of interesting input : " + str(len(interesting_seed)))
+                print ("number of interesting input : " + str(len(seed)))
                 print(time.time() - start_time)
                 if (end_time_checker()):
                     break
                 if (time_info_gathering(time_index)):
                     time_index += 1
                     time_per_time_index.append(time_index * time_interval)
-                    coverage_per_time.append(len(interesting_seed))
+                    coverage_per_time.append(len(seed))
                     bugs_per_time.append(Total_bugs)
                     tests_per_time.append(number_of_iteration)
+                    unique_bugs_per_time.append(len(unique_bug_returncodes))
                 #append everything after time_info_gathering
                 plot_duration.append(point_duration)
 
                 number_of_tests.append(number_of_iteration)
-                coverage_per_test.append(len(interesting_seed))
+                coverage_per_test.append(len(seed))
                 #will be implemented later
                 bugs_per_test.append(Total_bugs)
+                unique_bugs_per_tests.append(len(unique_bug_returncodes))
 
                 if (end_time_checker()):
                     break

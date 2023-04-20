@@ -123,10 +123,6 @@ def write_csv():
             writer.writerow([number_of_tests[i], average_coverage_per_test[i]])
     return
 
-ENERGY = 50
-
-BUG_COMMAND = "test.gcda:stamp mismatch with notes file"
-
 plot_duration = []
 total_coverage_per_test = []
 average_coverage_per_test = []

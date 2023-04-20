@@ -32,7 +32,7 @@ def mutate (location_operator_dic, scheme, host, port, path):
 		host = havoc_hp (host)
 	elif location_operator == "pbbt_host2":
 		host = insert_characters (host)
-	elif location_operator == "host3":
+	elif location_operator == "pbbt_host3":
 		host = delete_characters (host)
 	elif location_operator == "pbbt_host4":
 		host = swap_characters (host)
@@ -62,7 +62,16 @@ def mutate (location_operator_dic, scheme, host, port, path):
 		path = swap_characters (path)
 	else:
 		path = bitflip_random_character (path)
-
+  
+	if len(scheme) > 100:
+		scheme = scheme[0:100]
+	if len(host) > 400:
+		host = host[0:400]
+	
+	if len(port) > 100:
+		port = port[0:100]
+	if len(host) > 400:
+		host = host[0:400]
 	return scheme, host, port, path, location_operator
 
 '''def mutate_scheme (scheme):
@@ -158,7 +167,7 @@ def havoc_sp (target):
 	if choose_havoc == 0:
 		target = ''
 	else:
-		add_len = random.randint (30, 80)
+		add_len = random.randint (30, 100)
 		for i in range (len(target), add_len):
 			target += generate_random_character ()
 	return target
@@ -168,7 +177,7 @@ def havoc_hp (target):
 	if choose_havoc == 0:
 		target = ''
 	else:
-		add_len = random.randint (200, 900)
+		add_len = random.randint (200, 400)
 		for i in range (len(target), add_len):
 			target += generate_random_character ()
 	return target

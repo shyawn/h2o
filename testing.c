@@ -18,67 +18,22 @@ const h2o_url_scheme_t H2O_URL_SCHEME_HTTP = {{H2O_STRLIT("http")}, 80, 0};
 const h2o_url_scheme_t H2O_URL_SCHEME_HTTPS = {{H2O_STRLIT("https")}, 443, 1};
 const h2o_url_scheme_t H2O_URL_SCHEME_MASQUE = {{H2O_STRLIT("masque")}, 65535, 0 /* ??? masque might or might not be over TLS */};
 
-int main(){
-    int intsec, choose_mutation, returned_value;
-    time_t seconds;
-    char * url, * scheme, * host, * port, * path;
-    size_t url_len;
-    h2o_url_t * parsed;
-    time (&seconds);
-    intsec = (int) seconds;
-    srand (intsec);
+int main (int argc, char ** argv) {
+    char * url;
+    size_t url_len, returned_value;
+    h2o_url_t parsed;
 
-    url = (char *) malloc (1024 * sizeof (char));
-    scheme = (char *) malloc (100 * sizeof (char));
-    host = (char *) malloc (400 * sizeof (char));
-    port = (char *) malloc (100 * sizeof (char));
-    path = (char *) malloc (400 * sizeof (char));
+    memset(&parsed, 0x55, sizeof(parsed));
+    url = (char *) malloc (4096 * sizeof (char));
+    strcpy(url, argv[1]);
+    url_len = atoi(argv[2]);
+    printf("Input URL for C file is : %s, %ld\n", url, url_len);
+    returned_value = h2o_url_parse(url, url_len, &parsed);
     
-    
-    parsed = (h2o_url_t *) malloc (sizeof (h2o_url_t));
-    parsed -> scheme = (h2o_url_scheme_t *) malloc (sizeof (h2o_url_scheme_t));
-    scheme = new_scheme ();
-    host = new_host ();
-    sprintf (port, "%d", new_port());
-    path = new_path();
+    //int* error = NULL;
+    //printf("%d", error[10]);
 
-
-    printf ("%s\n", scheme);
-    printf ("%s\n", host);
-    printf ("%s\n", port);
-    printf ("%s\n", path);
-
-    choose_mutation = rand () % 4;
-    printf ("%d\n", choose_mutation);
-    if (choose_mutation == 0) {
-        strcpy(scheme, mutate_scheme (scheme));
-    }
-    else if (choose_mutation == 1) {
-        strcpy (host, mutate_host (host));
-    }
-    else if (choose_mutation == 2) {
-        strcpy (port, mutate_port (port));
-    }
-    else {
-        strcpy (path, mutate_path (path));
-    }
-
-    printf ("%s\n", scheme);
-    printf ("%s\n", host);
-    printf ("%s\n", port);
-    printf ("%s\n", path);
-
-    url = new_url (scheme, host, port, path);
-    printf("Url: %s\n", url);
-    url_len = strlen (scheme) + strlen (host) + strlen (port) + 1;
-    printf ("%d\n", url_len);
-    returned_value = h2o_url_parse(url, url_len, parsed);
-
-    printf ("%s %d %d %d\n", parsed -> scheme -> name.base, parsed -> scheme -> name.len, parsed -> scheme -> default_port, parsed -> scheme -> is_ssl);
-    printf ("%s %d %s %d %s %d\n", parsed -> authority.base, parsed -> authority.len, parsed -> host.base, parsed -> host.len, parsed -> path.base, parsed -> path.len);
-    printf ("%d\n", parsed -> _port);
-    
-    printf ("result: %d\n", returned_value);
+    printf ("result: %ld\n", returned_value);
 
     return 0;
 }
@@ -158,7 +113,7 @@ const char *h2o_url_parse_hostport(const char *s, size_t len, h2o_iovec_t *host,
             return NULL;
         *port = (uint16_t)p;
         token_start = token_end;
-    }
+    } 
 
     return token_start;
 }
@@ -216,122 +171,6 @@ int h2o_url_parse(const char *url, size_t url_len, h2o_url_t *parsed)
     return parse_authority_and_path(p, url_end, parsed);
 }
 
-char get_random_character()
-{
-	unsigned int i;
-    i = rand () % 62 + 65;
-    return (char) i;
-}
-
-char get_random_character_host () {
-    unsigned int i, a;
-    i = rand () % 2;
-    if (i) {
-        a = rand () % 13 + 45;
-        while (a == 47) {
-            a = rand () % 13 + 45;
-        }
-    }
-    else {
-        a = rand () % 26 + 97;
-    }
-    return (char) a;
-}
-
-char get_random_character_port () {
-    unsigned int a;
-    a = rand () % 10 + 48;
-    return (char) a;
-}
-
-char get_random_character_path () {
-    unsigned int a;
-    a = rand () % 94 + 33;
-    while (a == 34 | a == 42 | a == 47 | a == 58 | a == 60 | a == 62 | a == 63 | a == 92 | a == 124){
-        a = rand () % 94 + 33;
-    }
-    return (char) a;
-}
-
-char get_random_small_alphabet () {
-    unsigned int a;
-    a = rand () % 26 + 97;
-    return (char) a;
-}
-
-char * new_scheme () {
-    int choose_scheme;
-    char * scheme;
-    choose_scheme = rand () % 3;
-    if (choose_scheme == 0) {
-        strcpy (scheme, "http://");
-    }
-    else if (choose_scheme == 1) {
-        strcpy (scheme, "https://");
-    }
-    else {
-        strcpy (scheme, "masque://");
-    }
-    return scheme;
-}
-
-char * new_host () {
-    int toggle, idx, host_len, after_dot_len;
-    char * host;
-
-    toggle = rand () % 2;
-    
-    if (toggle) {
-        idx = rand () % 100000;
-        host = (char *) malloc (strlen(host_list[idx]) * sizeof (char));
-        strcpy (host, host_list[idx]);
-    }
-    else {
-        host_len = rand () % 15 + 5;
-        after_dot_len = rand () % 2 + 2; 
-        host = (char *) malloc ((host_len) * sizeof (char));
-        for (int i = 0; i < host_len - (after_dot_len + 1); i ++) {
-            host[i] = get_random_character_host ();
-        }
-        host[host_len - (after_dot_len + 1)] = '.';
-        for (int i = host_len - after_dot_len; i < host_len; i++) {
-            host[i] = get_random_small_alphabet ();
-        }
-    }
-    return host;
-}
-
-uint16_t new_port () {
-    uint16_t new_uint16;
-    new_uint16 = rand () % 65535 + 1;
-    return new_uint16;
-}
-
-char * new_path () {
-    int path_len;
-    char * path;
-
-    path_len = rand () % 29 + 2;
-    path = (char *) malloc (path_len * sizeof (char));
-    path[0] = '/';
-    for (int i = 1; i < path_len; i++) {
-        path[i] = get_random_character_path ();
-    }
-    return path;
-}
-
-char * new_url (char * scheme, char * host, char * port, char * path) {
-    char * url;
-    url = (char *) malloc (500 * sizeof (char));
-
-    strcat (url, scheme);
-    strcat (url, host);
-    strcat (url, ":");
-    strcat (url, port);
-    strcat (url, path);
-    return url;
-}
-
 h2o_iovec_t new_h2o_iovec () {
     h2o_iovec_t new_h2o_iovec;
     new_h2o_iovec.base = (char *) malloc (1000 * sizeof (char));
@@ -347,63 +186,9 @@ const h2o_url_scheme_t * new_h2o_url_scheme () {
 h2o_url_t * new_h2o_url () {
     //h2o_url_t * new_h2o_url = (h2o_url_t *) malloc (sizeof (h2o_url_t));
     h2o_url_t * new_h2o_url;
-    h2o_url_scheme_t * new_h2o_scheme;
-    h2o_iovec_t new_authority;
-    h2o_iovec_t new_host;
-    h2o_iovec_t new_path;
     new_h2o_url -> scheme = new_h2o_url_scheme ();
     new_h2o_url -> authority = new_h2o_iovec ();
     new_h2o_url -> host = new_h2o_iovec ();
     new_h2o_url -> path = new_h2o_iovec ();
-    new_h2o_url -> _port = new_port ();
     return new_h2o_url;
-}
-
-char * mutate_scheme (char * scheme) {
-    char * mutated_scheme;
-    static const char* scheme_list[] = {"http://", "https://", "masque://", "ftp://", "file-", "mailto:", "tel:", "sms:", "skype:"};
-    int scheme_idx, scheme_len, idx;
-
-    mutated_scheme = (char *) malloc (10 * sizeof (char));
-    scheme_len = strlen(scheme);
-    scheme_idx = rand () % 10;
-    if (scheme_idx == 9) {
-        idx = rand () % scheme_len;
-        scheme [idx] = get_random_character_path ();
-        return scheme;
-    }
-    else {
-        strcpy (mutated_scheme, scheme_list [scheme_idx]);
-        return mutated_scheme;
-    }
-    
-}
-
-char * mutate_host (char * host) {
-    int host_len, idx;
-
-    host_len = strlen (host);
-    idx = rand () % host_len;
-    host [idx] = get_random_character_host ();
-    
-    return host;
-}
-
-char * mutate_port (char * port) {
-    int port_len, idx;
-
-    port_len = strlen (port);
-    idx = rand () % port_len;
-    port [idx] = get_random_character_port ();
-    
-    return port;
-}
-
-char * mutate_path (char * path) {
-    int path_len, idx;
-
-    path_len = strlen (path);
-    idx = rand () % path_len;
-    path [idx] = get_random_character_path ();
-    return path;
 }

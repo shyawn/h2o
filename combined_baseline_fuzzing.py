@@ -123,10 +123,6 @@ def write_csv():
             writer.writerow([number_of_tests[i], average_coverage_per_test[i]])
     return
 
-ENERGY = 50
-
-BUG_COMMAND = "test.gcda:stamp mismatch with notes file"
-
 plot_duration = []
 total_coverage_per_test = []
 average_coverage_per_test = []
@@ -151,7 +147,7 @@ if not str(sys.argv[1]).isnumeric():
 time_for_fuzz = sys.argv[1]
 number_of_fuzzing = int(sys.argv[2])
 for i in range(number_of_fuzzing):
-    subprocess.run(["python3", "baseline_testing.py", str(time_for_fuzz), str(i)])
+    subprocess.run(["python3", "testing_baseline.py", str(time_for_fuzz), str(i)])
 
 # append values from 0th fuzz
 number_of_tests_min = initial_read_csv()
