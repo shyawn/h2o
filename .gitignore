@@ -21,3 +21,9 @@ testing.c.gcov
 testing.gcda
 testing.gcno
 testing
+test
+test.c.gcov
+test.gcda
+test.gcno
+__pycache__/
+
