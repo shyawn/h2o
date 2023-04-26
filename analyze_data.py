@@ -11,8 +11,6 @@ from collections import deque
 number_of_tests_min = 0
 
 def initial_read_csv():
-    # open the file in the write mode
-    # open the file in the write mode
     path = os.getcwd()
     with open(path + "/data_per_time" + str(0) + ".csv", 'r') as f:
         reader = csv.reader(f)
@@ -23,7 +21,6 @@ def initial_read_csv():
                 coverage_per_time.append(int(row[1]))
                 bugs_per_time.append(int(row[2]))
                 tests_per_time.append(int(row[3]))
-
             line_count += 1
             
     with open(path + "/data_per_test" + str(0) + ".csv", 'r') as f:
@@ -35,13 +32,10 @@ def initial_read_csv():
                 total_coverage_per_test.append(int(row[1]))
                 bugs_per_test.append(int(row[2]))
             line_count += 1
-        # -1 because of first line
         number_of_tests_min = line_count- 1
     return number_of_tests_min 
 
 def read_csv(i, number_of_tests_min):
-    # open the file in the write mode
-    # open the file in the write mode
     number_of_tests_min_return = 0
     path = os.getcwd()
     with open(path + "/data_per_time" + str(i) + ".csv", 'r') as f:
@@ -64,7 +58,6 @@ def read_csv(i, number_of_tests_min):
                 bugs_per_test[line_count-1] = int(row[2]) + int(bugs_per_test[line_count-1])
 
             line_count += 1
-        # -1 because of first line
         if(number_of_tests_min > line_count - 1):
             number_of_tests_min_return = line_count - 1
         else:
@@ -72,8 +65,6 @@ def read_csv(i, number_of_tests_min):
         return number_of_tests_min_return
     
 def initial_baseline_read_csv():
-    # open the file in the write mode
-    # open the file in the write mode
     path = os.getcwd()
     with open(path + "/baseline_data_per_time" + str(0) + ".csv", 'r') as f:
         reader = csv.reader(f)
@@ -96,14 +87,11 @@ def initial_baseline_read_csv():
                 baseline_total_coverage_per_test.append(int(row[1]))
                 baseline_bugs_per_test.append(int(row[2]))
             line_count += 1
-        # -1 because of first line
         number_of_tests_min = line_count- 1
     return number_of_tests_min 
 
 
 def baseline_read_csv(i, number_of_tests_min):
-    # open the file in the write mode
-    # open the file in the write mode
     number_of_tests_min_return = 0
     path = os.getcwd()
     with open(path + "/baseline_data_per_time" + str(i) + ".csv", 'r') as f:
@@ -126,7 +114,6 @@ def baseline_read_csv(i, number_of_tests_min):
                 baseline_bugs_per_test[line_count-1] = int(row[2]) + int(bugs_per_test[line_count-1])
 
             line_count += 1
-        # -1 because of first line
         if(number_of_tests_min > line_count - 1):
             number_of_tests_min_return = line_count - 1
         else:
@@ -137,11 +124,13 @@ def baseline_read_csv(i, number_of_tests_min):
 def normalize(number_of_tests_min):
     for i in range(len(coverage_per_time)):
         coverage_per_time[i] = round(float(coverage_per_time[i]) / number_of_fuzzing)
+        
     for i in range(number_of_tests_min):
         average_coverage_per_test.append(round(float(total_coverage_per_test[i]) / number_of_fuzzing))
 
     for i in range(len(baseline_coverage_per_time)):
         baseline_coverage_per_time[i] = round(float(baseline_coverage_per_time[i]) / number_of_fuzzing)
+        
     for i in range(number_of_tests_min):
         baseline_average_coverage_per_test.append(round(float(baseline_total_coverage_per_test[i]) / number_of_fuzzing))
 
@@ -176,24 +165,15 @@ def show_results():
     plt.show()
     
 def write_csv():
-    # open the file in the write mode
-    # open the file in the write mode
     path = os.getcwd()
     with open(path + "/final_result_data_per_time.csv", 'w') as f:
-    # create the csv writer
         writer = csv.writer(f)
-
-        # write a row to the csv file
-        #firstly write down datas per time
         writer.writerow(["time", "coverage", "bug"])
         for i in range(len(time_per_time_index)):
             writer.writerow([time_per_time_index[i], coverage_per_time[i], tests_per_time[i]])
+            
     with open(path + "/final_result_data_per_tests.csv", 'w') as f:
-    # create the csv writer
         writer = csv.writer(f)
-
-        # write a row to the csv file
-        #firstly write down datas per time
         writer.writerow(["test", "coverage", "bug"])
         for i in range((number_of_tests_min)):
             writer.writerow([number_of_tests[i], average_coverage_per_test[i]])
@@ -246,5 +226,6 @@ else:
     number_of_tests_min_final = number_of_tests_min_baseline
 #normalize
 normalize(number_of_tests_min_final)
+#prtint redsuly
 show_results()
 write_csv()

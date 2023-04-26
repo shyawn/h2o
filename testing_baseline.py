@@ -50,6 +50,9 @@ time_index = 0
 time_interval = 0.0
 number_of_coverage = 0
 
+end_time = time.time() 
+Time_for_running_Test = 0
+
 # Initialization of Seed
 seed = []
 bug_inputs = []
@@ -147,7 +150,11 @@ def entropy(map, new_map):
 
 
 # Set time constant using (time_for_fuzz/600)
-time_interval = time_for_fuzz/600
+if (time_for_fuzz > 300):
+    time_interval = time_for_fuzz/600
+else:
+    time_interval = time_for_fuzz/100
+
 
 
 def end_time_checker():
@@ -157,7 +164,6 @@ def time_info_gathering(i):
     return (time.time() - start_time) > i * time_interval
 
 def show_results():
-    end_time = time.time()
     total_duration = end_time - start_time
     print("Total time taken: ", total_duration)
 
@@ -206,18 +212,27 @@ def write_csv():
 
         # write a row to the csv file
         #firstly write down datas per time
-        writer.writerow(["unique codes"])
+        writer.writerow(["unique bugs"])
         for i in range(len(unique_bug_returncodes)):
             writer.writerow([unique_bug_returncodes[i]])
         writer.writerow(["bugs"])
         for i in range(len(bug_inputs)):
             writer.writerow([bug_inputs[i][0], bug_inputs[i][1]])
+            
+    with open(path + "/baseline_timeinfo" + str(nth_fuzz) + ".csv", 'w') as f:
+    # create the csv writer
+        writer = csv.writer(f)
+        # write a row to the csv file
+        #firstly write down datas per time
+        writer.writerow(["average time taken for running tests", "average time taken for generate inputs"])
+        writer.writerow([Time_for_running_Test / number_of_iteration, ( end_time - start_time - Time_for_running_Test)  / number_of_iteration])
     return
 # Main running code
-start_time = time.time()
 
 seed_index = 0
 seed_length = 0
+# Start to count time from this point
+start_time = time.time() 
 try:
     #infinite loop (loops break when time.time() - start_time > time_for_fuzz)
     while(1):
@@ -255,7 +270,10 @@ try:
                     print (location)
                     #new_url is mutated url, url_len is length of scheme, host, port
                     output = ""
+                    run_start_time = time.time()
                     output = subprocess.run(["./testing", str(new_url), str(url_len)])
+                    run_end_time = time.time()
+                    Time_for_running_Test += run_end_time - run_start_time
                     print ("cmd out " +  str(output))
                     if (str(output).find(BUG_COMMAND) == -1):
                         Total_bugs += 1
@@ -320,7 +338,10 @@ try:
                 url_len = len(new_url)
                 subprocess.run(["gcc", "-o", "testing", "--coverage", "testing.c"])
                 subprocess.run(["./testing", str(new_url), str(url_len)])
-                output = subprocess.run(["gcov", "testing.c", "-m"], capture_output=True)
+                run_start_time = time.time()
+                subprocess.run(["gcov", "testing.c", "-m"])
+                run_end_time = time.time()
+                Time_for_running_Test += run_end_time - run_start_time
                 read_gcov(scheme, host, port, path, "")
                 # Calculate time taken for each iteration
                 point_duration = time.time() - start_time
@@ -349,9 +370,10 @@ try:
             seed_length = len(seed)
         if (end_time_checker()):
             break
-
+    end_time = time.time()
     show_results()
     write_csv()
 except KeyboardInterrupt:
+    end_time = time.time()
     show_results()
     write_csv()

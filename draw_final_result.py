@@ -11,8 +11,6 @@ from collections import deque
 number_of_tests_min = 0
 
 def initial_read_csv():
-    # open the file in the write mode
-    # open the file in the write mode
     path = os.getcwd()
     with open(path + "/final_result_data_per_tests" + ".csv", 'r') as f:
         reader = csv.reader(f)
@@ -21,8 +19,6 @@ def initial_read_csv():
             if (line_count != 0):
                 number_of_tests.append(float(row[0]))
                 total_coverage_per_test.append(int(row[1]))
-
-
             line_count += 1
     number_of_tests_min = line_count- 1
             
@@ -37,17 +33,62 @@ def initial_read_csv():
         # -1 because of first line
     if (line_count < number_of_tests_min):
         number_of_tests_min = line_count -1
+        
+    with open(path + "/final_result_data_per_time" + ".csv", 'r') as f:
+        reader = csv.reader(f)
+        line_count = 0
+        for row in reader:
+            if (line_count != 0):
+                time_per_time_index.append(float(row[0]))
+                coverage_per_time.append(int(row[1]))
+            line_count += 1
+            
+    with open(path + "/baseline_final_result_data_per_time" + ".csv", 'r') as f:
+        reader = csv.reader(f)
+        line_count = 0
+        for row in reader:
+            if (line_count != 0):
+                time_per_time_index.append(float(row[0]))
+                baseline_coverage_per_time.append(int(row[1]))
+            line_count += 1
+        # -1 because of first line
     return number_of_tests_min 
 
 
 def show_results():
 
+    plt.ylim(0, 6000)
+    plt.yfrequency(6)
     plt.plot(number_of_tests, total_coverage_per_test)
     plt.plot(number_of_tests, baseline_total_coverage_per_test)
     plt.xlabel('tests')
     plt.ylabel('coverage')
     plt.show()
-
+    
+    plt.clear_data()
+    plt.ylim(0, 6000)
+    plt.yfrequency(6)
+    plt.plot(time_per_time_index, coverage_per_time)
+    plt.plot(time_per_time_index, baseline_coverage_per_time)
+    plt.xlabel('time')
+    plt.ylabel('coverage')
+    plt.show()
+    
+    plt.clear_data()
+    plt.ylim(0, 6000)
+    plt.yfrequency(6)
+    plt.plot(time_per_time_index, coverage_per_time)
+    plt.xlabel('time')
+    plt.ylabel('coverage')
+    plt.show()
+    
+    plt.clear_data()
+    plt.ylim(0, 6000)
+    plt.yfrequency(6)
+    plt.plot(number_of_tests, total_coverage_per_test)
+    plt.xlabel('tests')
+    plt.ylabel('coverage')
+    plt.show()
 
 plot_duration = []
 total_coverage_per_test = []

@@ -11,7 +11,7 @@ from collections import deque
 number_of_tests_min = 0
 
 def initial_read_csv():
-    # open the file in the write mode
+    global Runtime_of_target_func, Time_for_generate_input
     # open the file in the write mode
     path = os.getcwd()
     with open(path + "/data_per_time" + str(0) + ".csv", 'r') as f:
@@ -37,10 +37,19 @@ def initial_read_csv():
             line_count += 1
         # -1 because of first line
         number_of_tests_min = line_count- 1
+        
+    with open(path + "/timeinfo" + str(0) + ".csv", 'r') as f:
+        reader = csv.reader(f)
+        line_count = 0
+        for row in reader:
+            if (line_count != 0):
+                Runtime_of_target_func += float(row[0])
+                Time_for_generate_input += float(row[1])
+            line_count += 1
     return number_of_tests_min 
 
 def read_csv(i, number_of_tests_min):
-    # open the file in the write mode
+    global Runtime_of_target_func, Time_for_generate_input
     # open the file in the write mode
     number_of_tests_min_return = 0
     path = os.getcwd()
@@ -69,13 +78,27 @@ def read_csv(i, number_of_tests_min):
             number_of_tests_min_return = line_count - 1
         else:
             number_of_tests_min_return = number_of_tests_min
-        return number_of_tests_min_return
+    with open(path + "/timeinfo" + str(i) + ".csv", 'r') as f:
+        reader = csv.reader(f)
+        line_count = 0
+        for row in reader:
+            if (line_count != 0):
+                Runtime_of_target_func += float(row[0])
+                Time_for_generate_input += float(row[1])
+            line_count += 1
+    return number_of_tests_min_return
     
 def normalize(number_of_tests_min):
+    
+    global Runtime_of_target_func, Time_for_generate_input, average_Runtime_of_target_func, average_Time_for_generate_input
     for i in range(len(coverage_per_time)):
         coverage_per_time[i] = round(float(coverage_per_time[i]) / number_of_fuzzing)
+    for i in range(len(coverage_per_time)):
+        tests_per_time[i] = round(float(tests_per_time[i]) / number_of_fuzzing)
     for i in range(number_of_tests_min):
         average_coverage_per_test.append(round(float(total_coverage_per_test[i]) / number_of_fuzzing))
+    average_Runtime_of_target_func = Runtime_of_target_func / number_of_fuzzing
+    average_Time_for_generate_input = Time_for_generate_input / number_of_fuzzing
 
 
 def show_results():
@@ -100,27 +123,24 @@ def show_results():
     plt.show()
     
 def write_csv():
-    # open the file in the write mode
-    # open the file in the write mode
+
     path = os.getcwd()
     with open(path + "/final_result_data_per_time.csv", 'w') as f:
-    # create the csv writer
         writer = csv.writer(f)
-
-        # write a row to the csv file
-        #firstly write down datas per time
         writer.writerow(["time", "coverage", "bug"])
         for i in range(len(time_per_time_index)):
             writer.writerow([time_per_time_index[i], coverage_per_time[i], tests_per_time[i]])
+            
     with open(path + "/final_result_data_per_tests.csv", 'w') as f:
-    # create the csv writer
         writer = csv.writer(f)
-
-        # write a row to the csv file
-        #firstly write down datas per time
         writer.writerow(["test", "coverage", "bug"])
         for i in range((number_of_tests_min)):
             writer.writerow([number_of_tests[i], average_coverage_per_test[i]])
+            
+    with open(path + "/final_timeinfo" + ".csv", 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(["average time taken for running tests", "average time taken for generate inputs"])
+        writer.writerow([average_Runtime_of_target_func, average_Time_for_generate_input])
     return
 
 plot_duration = []
@@ -132,6 +152,11 @@ time_per_time_index = []
 coverage_per_time = []
 bugs_per_time = []
 tests_per_time = []
+
+Runtime_of_target_func = 0
+average_Runtime_of_target_func = 0
+Time_for_generate_input = 0
+average_Time_for_generate_input = 0
 
 
 if len(sys.argv) < 3:
